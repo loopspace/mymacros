@@ -1,0 +1,426 @@
+\ProvidesPackage{mymacros}
+\RequirePackage{xspace}
+\RequirePackage{home}
+
+%
+% My macros: shortcuts and macros that I often use
+%
+
+% The rather odd margin effect is so that grepping this file to find a
+% particular command tells you which option allows said command and
+% which packages it relys on.
+
+
+%
+% Some ifs to determine whether or not we have certain capabilities.
+% As these might be provided by several packages, we need to be more
+% subtle than just using \@ifpackageloaded.
+%
+
+% Are we providing theorem-like environments?  And are we using
+% amsthm.sty or amsart.cls to provide them?  (Can't just check if
+% we've loaded amsthm.sty as amsart.cls doesn't load it but
+% incorporates it within).
+
+\newif\ifthe@rem
+
+\newif\if@msthm
+
+\ifAMS
+\@msthmtrue
+\fi
+
+\@ifpackageloaded{amsthm}{\@msthmtrue}{}
+
+% Load theorem defaults if available.
+
+\if@msthm
+ \the@remtrue
+\fi
+
+\ifLMS
+ \the@remtrue
+\fi
+
+% Dealing with differential operators
+
+\DeclareOption{diff}{
+ \newcommand{\diff}[2]{\ensuremath                                      % diff
+   \frac{d #1}{d #2}}
+ \newcommand{\pdiff}[2]{\ensuremath                                     % diff
+   \frac{\partial #1}{\partial #2}}
+ \newcommand{\diffn}[3]{\ensuremath                                     % diff
+   \frac{d^{#1} #2}{d #3^{#1}}}
+ \newcommand{\pdiffn}[3]{\ensuremath                                    % diff
+   \frac{\partial^{#1} #2}{\partial #3}}
+ \newcommand{\pdiffnn}[3]{\ensuremath                                   % diff
+   \frac{\partial^{#1} #2}{\partial {#3}^{#1}}}
+}
+
+% All the standard blackboard bold symbols
+
+\DeclareOption{bb}{
+  \ifx\mathbb\undefined
+  \else
+  \newcommand{\C}{\ensuremath {\mathbb{C}}\xspace}  % bb [amssymb/math/pxfonts]
+  \newcommand{\CP}{\ensuremath {\mathbb{CP}}\xspace}% bb [amssymb/math/pxfonts]
+  \newcommand{\F}{\ensuremath {\mathbb{F}}\xspace}  % bb [amssymb/math/pxfonts]
+  \newcommand{\N}{\ensuremath {\mathbb{N}}\xspace}  % bb [amssymb/math/pxfonts]
+  \renewcommand{\P}{\ensuremath {\mathbb{P}}\xspace}% bb [amssymb/math/pxfonts]
+  \newcommand{\Q}{\ensuremath {\mathbb{Q}}\xspace}  % bb [amssymb/math/pxfonts]
+  \newcommand{\R}{\ensuremath {\mathbb{R}}\xspace}  % bb [amssymb/math/pxfonts]
+  \newcommand{\Z}{\ensuremath {\mathbb{Z}}\xspace}  % bb [amssymb/math/pxfonts]
+  \fi
+}
+
+% Some geometrical symbols and operators
+
+\DeclareOption{geom}{
+ \newcommand{\Ci}{\ensuremath {C^\infty}\xspace}                        % geom
+ \newcommand{\restrict}{\!\!\mid}                                       % geom
+ \newcommand{\conj}[1]{\overline{#1}}                                   % geom
+ \newcommand{\exterior}{\Lambda}                                        % geom
+ \newcommand{\T}{\ensuremath{{S^1}}\xspace}                             % geom
+
+\@ifpackageloaded{amsmath}{%
+%	\DeclareMathOperator{\Det}{Det}                       % geom [amsmath]
+	\DeclareMathOperator{\gr}{Gr}                         % geom [amsmath]
+	\DeclareMathOperator{\gl}{Gl}                         % geom [amsmath]
+	\DeclareMathOperator{\spl}{Sl}                        % geom [amsmath]
+	\DeclareMathOperator{\un}{U}                          % geom [amsmath]
+	\DeclareMathOperator{\ind}{Index}                     % geom [amsmath]
+%	\DeclareMathOperator{\codim}{codim}                   % geom [amsmath]
+	\DeclareMathOperator{\coker}{coker}                   % geom [amsmath]
+	\DeclareMathOperator{\im}{im}                         % geom [amsmath]
+%	\DeclareMathOperator{\supp}{supp}                     % geom [amsmath]
+	\DeclareMathOperator{\spin}{Spin}                     % geom [amsmath]
+	\DeclareMathOperator{\tr}{Tr}                         % geom [amsmath]
+	\DeclareMathOperator{\End}{End}                       % geom [amsmath]
+%	\DeclareMathOperator{\sym}{Sym}                       % geom [amsmath]
+	\DeclareMathOperator{\map}{Map}                       % geom [amsmath]
+	\DeclareMathOperator{\dv}{Div}                        % geom [amsmath]
+}{}
+}
+
+%
+% If we use the package amsthm or the lms class, we should set up
+% various standards by default.  Provide an option to disable this,
+% however.
+%
+
+\DeclareOption{nothm}{
+  \the@remfalse
+}
+
+% Some useful abbreviations and shortcuts for including figures
+
+\DeclareOption{fig}{
+  \renewcommand{\usefig}{
+    \usepackage[dvips]{graphicx}
+    \usepackage[dvips]{color}
+    \usepackage{epsfig}
+    }
+  \ifx\pdfoutput\undefined
+  \else
+    \ifnum\pdfoutput=0
+    \else
+      \renewcommand{\usefig}{
+        \usepackage[pdftex]{graphicx}
+        \usepackage[pdftex,dvipsnames]{color}
+      }
+    \fi
+  \fi
+
+  \providecommand{\location}[1]%
+    {\newcommand{\figdir}{\TeXhome/#1/figures}}
+
+  \providecommand{\colour}[1]{\color{#1}}
+  \providecommand{\definecolour}[3]{\definecolor{#1}{#2}{#3}}
+
+  \providecommand{\fig}[1]{\input{\figdir/#1.pstex_t}}
+
+  \ifx\figheight\undefined
+    \newlength{\figheight}
+  \fi
+  \providecommand{\blankfig}[1]%
+    {\settoheight{\figheight}{\input{\figdir/#1.pstex_t}}
+     \hspace*{\textwidth}
+     \vspace{\figheight}
+    }
+}
+
+\DeclareOption{wallpaper}{
+  \ExecuteOptions{fig}
+
+  \renewcommand{\useeso}{\usepackage{eso-pic}}
+  \renewcommand{\wallpaper}[2][Orange]{%
+    \color[named]{#1}
+    \ClearShipoutPicture
+    \AddToShipoutPicture{\put(0,0){%
+        \hspace{-\hoffset}
+        \parbox[b][\paperheight]{\paperwidth}{%       
+          \vfill
+          \centering
+          \includegraphics[width=\paperwidth,height=\paperheight,%
+            draft=false,keepaspectratio]{\wallhome/Backgrounds/faded/TeX/#2}%
+          \vfill
+    }}}
+  }
+  \renewcommand{\nowallpaper}{\color[named]{Black}\ClearShipoutPicture}
+  \renewcommand{\draftcolour}[2][named]{\color[#1]{#2}}
+  \renewcommand{\draftpagecolour}[2][named]{\pagecolor[#1]{#2}}
+}
+
+\DeclareOption{all}{
+  \ExecuteOptions{chcl,diff,abbrev,bb,geom,amsthm,fig}
+}
+
+\newcommand{\useeso}{}
+\newcommand{\usefig}{}
+\newcommand{\wallpaper}[2][Orange]{}
+\newcommand{\nowallpaper}{}
+\newcommand{\draftcolour}[2][named]{}
+\newcommand{\draftpagecolour}[2][named]{}
+
+\ProcessOptions
+
+\usefig
+\useeso
+
+%
+% Anglicisations
+%
+
+
+\@ifundefined{centre}{%
+\newenvironment{centre}{\center}{\endcenter}%
+}{}
+
+%
+% Theorem styles
+%
+
+\ifthe@rem
+  \if@msthm
+    \newtheoremstyle{thm}{3pt}{3pt}{\itshape}{}{\bfseries}{}{.5em}{}
+    \newtheoremstyle{thmsub}{3pt}{3pt}{\upshape}{}{\bfseries}{}{.5em}{}
+
+    \theoremstyle{thm}
+  \fi
+
+  \newtheorem{theorem}{Theorem}[section]                  % amsthm [!amsthm!]
+  \newtheorem{lemma}[theorem]{Lemma}                      % amsthm [!amsthm!]
+  \newtheorem{proposition}[theorem]{Proposition}          % amsthm [!amsthm!]
+
+  \ifLMS
+    \newnumbered{defn}[theorem]{Definition}                 % amsthm [!amsthm!]
+    \newnumbered{conjecture}{Conjecture}                     % amsthm [!amsthm!]
+    \newnumbered{axiom}[theorem]{Axiom}                      % amsthm [!amsthm!]
+  \else
+    \newtheorem{defn}[theorem]{Definition}                  % amsthm [!amsthm!]
+    \newtheorem{conjecture}{Conjecture}                     % amsthm [!amsthm!]
+    \newtheorem{axiom}[theorem]{Axiom}                      % amsthm [!amsthm!]
+
+% Starred versions are automatic under LMS
+    \newtheorem*{defn*}{Definition}                         % amsthm [!amsthm!]
+    \newtheorem*{conjecture*}{Conjecture}                   % amsthm [!amsthm!]
+    \newtheorem*{axiom*}{Axiom}                             % amsthm [!amsthm!]
+    \newtheorem*{theorem*}{Theorem}                         % amsthm [!amsthm!]
+    \newtheorem*{lemma*}{Lemma}                             % amsthm [!amsthm!]
+    \newtheorem*{proposition*}{Proposition}                 % amsthm [!amsthm!]
+    \newtheorem*{corollary*}{Corollary}                     % amsthm [!amsthm!]
+  \fi
+
+    \newtheorem{corollary}[theorem]{Corollary}              % amsthm [!amsthm!]
+    \newtheorem{thm}{Theorem}                               % amsthm [!amsthm!]
+    \newtheorem{cor}[thm]{Corollary}                        % amsthm [!amsthm!]
+    \newtheorem{deflemma}[theorem]{Definition and Lemma}    % amsthm [!amsthm!]
+
+  \if@msthm
+    \theoremstyle{thmsub}
+  \fi
+
+  \ifLMS
+    \newnumbered{example}[theorem]{Example}                  % amsthm [!amsthm!]
+    \newnumbered{exercise}[theorem]{Exercise}                % amsthm [!amsthm!]
+    \newnumbered{remark}[theorem]{Remark}                    % amsthm [!amsthm!]
+    \newnumbered{question}[theorem]{Question}                % amsthm [!amsthm!]
+  \else
+    \newtheorem{example}[theorem]{Example}                  % amsthm [!amsthm!]
+    \newtheorem{exercise}[theorem]{Exercise}                % amsthm [!amsthm!]
+    \newtheorem{remark}[theorem]{Remark}                    % amsthm [!amsthm!]
+    \newtheorem{question}[theorem]{Question}                % amsthm [!amsthm!]
+  \fi
+
+  \renewcommand{\thetheorem}{\thesection.\arabic{theorem}}
+  \renewcommand{\theconjecture}{\Alph{conjecture}}
+  \renewcommand{\thethm}{\Alph{thm}}
+\fi
+
+%
+% 'noproof' commands
+%
+
+\if@msthm
+  \newcommand{\noproof}{%
+    \ifmmode
+    \pushQED{\qed}\qedhere
+    \else
+    {\hspace*{\fill}\qed}%
+    \fi}
+\else
+  \ifLMS
+    \let\qed\proofbox
+    \let\qedhere\esinglebox
+    \newcommand{\noproof}{{\hspace*{\fill}\proofbox}}
+  \else
+    \newcommand{\qed}{\leavevmode
+      \hbox to.77778em{%
+        \hfil\vrule
+        \vbox to.675em{\hrule width.6em\vfil\hrule}%
+        \vrule\hfil}}%
+    \newcommand{\noproof}{{\hspace*{\fill}\qed}}
+  \fi
+\fi
+
+
+%
+% Font shortcuts
+%
+
+\newcommand{\m}[1]{\ensuremath {\mathcal{#1}}\xspace}
+\newcommand{\mf}[1]{\ensuremath {\mathfrak{#1}}\xspace}
+
+%
+% A rather horrendous topological gaff
+% 
+
+\newcommand{\smsh}{\land}
+\renewcommand{\wedge}{\lor}
+
+%
+% Allow conjoining of words without breaking hyphenation.
+% Three lengths: - -- --- corresponding to
+% \hyp, \enhyp, \emhyp
+%
+% If hyphenat pacakge is loaded, use \hyp from that and define \enhyp
+% and \emhyp similarly.
+% Otherwise, use a simpler hack.
+%
+
+\@ifpackageloaded{hyphenat}{%
+  \newcommand{\BreakableEnDash}{\leavevmode%
+    \prw@zbreak--\discretionary{}{}{}\prw@zbreak}
+  \DeclareRobustCommand{\enhyp}{%
+    \ifmmode--\else\BreakableEnDash\fi}
+  \newcommand{\BreakableEmDash}{\leavevmode%
+    \prw@zbreak---\discretionary{}{}{}\prw@zbreak}
+  \DeclareRobustCommand{\enhyp}{%
+    \ifmmode---\else\BreakableEnDash\fi}
+}{%
+  \newcommand{\hyp}{-\hspace{0pt}}
+  \newcommand{\enhyp}{--\hspace{0pt}}
+  \newcommand{\emhyp}{---\hspace{0pt}}
+}
+
+%
+% These only work with amssymb or pxfonts
+%
+
+\@ifundefined{smallsetminus}{}{%
+\newcommand{\ssetminus}{\ensuremath {\!\smallsetminus\!}}        % [!amssymb!]
+}
+
+%
+% These with only amsmath
+%
+
+\@ifpackageloaded{amsmath}{%
+  \renewcommand{\above}[2]{\genfrac{}{}{0pt}{}{#1}{#2}}           % [!amsmath!]
+  \newcommand{\abs}[1]{%                                          % [!amsmath!]
+    {\if@display
+       \left\lvert #1 \right\rvert
+     \else
+       \lvert #1 \rvert
+     \fi}}
+  \newcommand{\sabs}[1]{\lvert #1 \rvert}                         % [!amsmath!]
+  \newcommand{\norm}[1][\cdot]{\left\lVert #1 \right\rVert}       % [!amsmath!]
+  \newcommand{\ip}[2]{\langle #1, #2 \rangle}                     % [!amsmath!]
+}{}
+
+%
+% If we use the fancyhdr package
+%
+
+\@ifpackageloaded{fancyhdr}{%
+	\pagestyle{fancy}
+	\fancyhead{}
+	\cfoot{\thepage}
+
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0pt}
+}{}
+
+%
+% Useful editing commands.  All these only work in draft mode.
+%
+
+\ifdraft
+  \ifx\comment\undefined
+    \newcommand{\comment}[1]{\emph{NB. #1}}
+  \else
+    \renewcommand{\comment}[1]{\emph{NB. #1}}
+  \fi
+
+  \newcommand{\here}{\vspace{12pt}\comment{I'm here!}\vspace{12pt}}
+
+  \RequirePackage{srcltx}
+
+%
+% If in draft mode, use showlabels.sty plus the following modification:
+% Addition to showlabels.sty - show where labels are used as well as
+% defined.  Square brackets for used, curly for defined.
+%
+
+  \RequirePackage{showlabels}
+
+  \showlabels{ref}
+  \showlabels{cite}
+
+%  \def\ref#1{\expandafter\@setref\csname r@#1\endcsname\@firstoftwo{#1}\marginpar{\makebox[\marginparwidth][l]{{\showlabelfont [#1]}}}}
+%  \def\nmref#1{\expandafter\@setref\csname r@#1\endcsname\@firstoftwo{#1}}
+
+%  \renewcommand{\eqref}[1]{\textup{\tagform@{\expandafter\@setref\csname r@#1\endcsname\@firstoftwo{#1}}}\marginpar{\makebox[\marginparwidth][l]{{\showlabelfont [#1]}}}}
+%  \newcommand{\nmeqref}[1]{\textup{\tagform@{\expandafter\@setref\csname r@#1\endcsname\@firstoftwo{#1}}}}
+
+  \addtolength{\hoffset}{-110pt}
+
+  \newcommand{\aim}[1]{\noindent \textbf{Aim:} \emph{#1} \bigskip}
+  \newcommand{\concept}[1]{\noindent \textsc{Concept:} \emph{#1} \bigskip}
+  \newcommand{\note}[1]{\noindent \textit{Note:} \textbf{\emph{#1}} \bigskip}
+  \newenvironment{notes}{\noindent \textit{Notes:}\enumerate}
+	{\endenumerate \noindent \textit{End of notes} \bigskip}
+
+%%% Have a nice background whilst in draft mode
+
+\wallpaper{100-3780a4}
+
+
+\else
+
+% Not in draft mode, kill the above commands
+
+	\newcommand{\aim}[1]{}
+	\newcommand{\concept}[1]{}
+	\newcommand{\nmref}[1]{\ref{#1}}
+	\newcommand{\nmeqref}[1]{\eqref{#1}}
+	\newenvironment{notes}{}{}
+
+%
+% Don't implement the wallpaper stuff, even if asked for, outside draft mode
+%
+
+	\renewcommand{\wallpaper}[2][Orange]{}
+	\renewcommand{\nowallpaper}{}
+	\renewcommand{\draftcolour}[2][named]{}
+\fi
