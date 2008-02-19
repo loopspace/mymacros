@@ -42,6 +42,16 @@
  \the@remtrue
 \fi
 
+% Debug option
+
+\newcommand{\myw@rning}[1]{}
+
+\DeclareOption{debug}{
+  \renewcommand{\myw@rning}[1]{%
+    \message{^^JMyMacro Warning: #1^^J}%
+  }
+}
+
 % Dealing with differential operators
 
 \DeclareOption{diff}{
@@ -115,37 +125,22 @@
 % Some useful abbreviations and shortcuts for including figures
 
 \DeclareOption{fig}{
-  \renewcommand{\usefig}{
-    \usepackage[dvips]{graphicx}
-    \usepackage[dvips]{color}
-    \usepackage{epsfig}
-    }
-  \ifx\pdfoutput\undefined
-  \else
-    \ifnum\pdfoutput=0
-    \else
-      \renewcommand{\usefig}{
-        \usepackage[pdftex]{graphicx}
-        \usepackage[pdftex,dvipsnames]{color}
-      }
-    \fi
-  \fi
 
-  \providecommand{\location}[1]%
-    {\newcommand{\figdir}{\TeXhome/#1/figures}}
+  \providecommand{\location}[2][\TeXhome/]%
+    {\newcommand{\figdir}{#1#2/figures}}
 
   \providecommand{\colour}[1]{\color{#1}}
   \providecommand{\definecolour}[3]{\definecolor{#1}{#2}{#3}}
 
-  \providecommand{\fig}[1]{\input{\figdir/#1.pstex_t}}
-
-  \ifx\figheight\undefined
-    \newlength{\figheight}
-  \fi
-  \providecommand{\blankfig}[1]%
-    {\settoheight{\figheight}{\input{\figdir/#1.pstex_t}}
-     \hspace*{\textwidth}
-     \vspace{\figheight}
+  \providecommand{\myfig}[1]{%
+      \myw@rning{Looking for \figdir/#1.pstex_t}
+      \IfFileExists{\figdir/#1.pstex_t}{%
+        \myw@rning{\figdir/#1.pstex_t found}%
+        \input{\figdir/#1.pstex_t}%
+        }{%
+        \myw@rning{\figdir/#1.pstex_t not found}%
+        \includegraphics{#1}%
+      }%
     }
 }
 
@@ -184,7 +179,6 @@
 
 \ProcessOptions
 
-\usefig
 \useeso
 
 %
