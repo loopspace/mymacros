@@ -1,6 +1,7 @@
 \ProvidesPackage{mymacros}
 \RequirePackage{xspace}
 \RequirePackage{home}
+\RequirePackage{cmdtrack}
 
 %
 % My macros: shortcuts and macros that I often use
@@ -50,6 +51,12 @@
   \renewcommand{\myw@rning}[1]{%
     \message{^^JMyMacro Warning: #1^^J}%
   }
+}
+
+% Are we using tracking?
+
+\DeclareOption{track}{
+  \checkon
 }
 
 % Dealing with differential operators
@@ -139,7 +146,7 @@
         \input{\figdir/#1.pstex_t}%
         }{%
         \myw@rning{\figdir/#1.pstex_t not found}%
-        \includegraphics{#1}%
+        \includegraphics{\figdir/#1}%
       }%
     }
 }
@@ -255,6 +262,7 @@
 % 'noproof' commands
 %
 
+\@ifundefined{noproof}{%
 \if@msthm
   \newcommand{\noproof}{%
     \ifmmode
@@ -276,7 +284,7 @@
     \newcommand{\noproof}{{\hspace*{\fill}\qed}}
   \fi
 \fi
-
+}{}
 
 %
 % Font shortcuts
@@ -376,7 +384,7 @@
 % defined.  Square brackets for used, curly for defined.
 %
 
-  \RequirePackage{showlabels}
+  \RequirePackage{myshowlabels}
 
   \showlabels{ref}
   \showlabels{cite}
@@ -418,3 +426,7 @@
 	\renewcommand{\nowallpaper}{}
 	\renewcommand{\draftcolour}[2][named]{}
 \fi
+
+% Turn off tracking (safe to do even if we didn't turn it on)
+
+\checkoff
