@@ -1,7 +1,11 @@
 \ProvidesPackage{mymacros}
 \RequirePackage{xspace}
 \RequirePackage{home}
-\RequirePackage{cmdtrack}
+\ifbeamer
+ \newif\ifcmdtrack
+\else
+ \RequirePackage[morose]{cmdtrack}
+\fi
 
 %
 % My macros: shortcuts and macros that I often use
@@ -43,6 +47,13 @@
  \the@remtrue
 \fi
 
+% Beamer predefines loads of the theorem variants, best leave them
+% alone (for now)
+
+\ifbeamer
+ \the@remfalse
+\fi
+
 % Debug option
 
 \newcommand{\myw@rning}[1]{}
@@ -56,7 +67,7 @@
 % Are we using tracking?
 
 \DeclareOption{track}{
-  \checkon
+  \cmdtracktrue
 }
 
 % Dealing with differential operators
@@ -429,4 +440,4 @@
 
 % Turn off tracking (safe to do even if we didn't turn it on)
 
-\checkoff
+\cmdtrackfalse
