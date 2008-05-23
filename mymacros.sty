@@ -1,12 +1,11 @@
 \ProvidesPackage{mymacros}
 \RequirePackage{xspace}
 \RequirePackage{home}
-\ifbeamer
- \newif\ifcmdtrack
-\else
+
+\ifClassIs{beamer}{
+}{
  \RequirePackage[morose]{cmdtrack}
- \cmdtrackfalse
-\fi
+}
 
 %
 % My macros: shortcuts and macros that I often use
@@ -32,9 +31,9 @@
 
 \newif\if@msthm
 
-\ifAMS
+\ifClassIs{amsart}{
 \@msthmtrue
-\fi
+}{}
 
 \@ifpackageloaded{amsthm}{\@msthmtrue}{}
 
@@ -44,16 +43,20 @@
  \the@remtrue
 \fi
 
-\ifLMS
+\ifClassIs{lms}{
  \the@remtrue
-\fi
+}{}
 
 % Beamer predefines loads of the theorem variants, best leave them
 % alone (for now)
 
-\ifbeamer
+\ifClassIs{beamer}{
  \the@remfalse
-\fi
+}{}
+
+\@ifpackageloaded{beamerarticle}{
+  \the@remfalse
+}{}
 
 % Debug option
 
@@ -225,11 +228,11 @@
   \newtheorem{lemma}[theorem]{Lemma}                      % amsthm [!amsthm!]
   \newtheorem{proposition}[theorem]{Proposition}          % amsthm [!amsthm!]
 
-  \ifLMS
+  \ifClassIs{lms}{
     \newnumbered{defn}[theorem]{Definition}                 % amsthm [!amsthm!]
     \newnumbered{conjecture}{Conjecture}                     % amsthm [!amsthm!]
     \newnumbered{axiom}[theorem]{Axiom}                      % amsthm [!amsthm!]
-  \else
+  }{
     \newtheorem{defn}[theorem]{Definition}                  % amsthm [!amsthm!]
     \newtheorem{conjecture}{Conjecture}                     % amsthm [!amsthm!]
     \newtheorem{axiom}[theorem]{Axiom}                      % amsthm [!amsthm!]
@@ -242,7 +245,7 @@
     \newtheorem*{lemma*}{Lemma}                             % amsthm [!amsthm!]
     \newtheorem*{proposition*}{Proposition}                 % amsthm [!amsthm!]
     \newtheorem*{corollary*}{Corollary}                     % amsthm [!amsthm!]
-  \fi
+  }
 
     \newtheorem{corollary}[theorem]{Corollary}              % amsthm [!amsthm!]
     \newtheorem{thm}{Theorem}                               % amsthm [!amsthm!]
@@ -253,17 +256,17 @@
     \theoremstyle{thmsub}
   \fi
 
-  \ifLMS
+  \ifClassIs{lms}{
     \newnumbered{example}[theorem]{Example}                  % amsthm [!amsthm!]
     \newnumbered{exercise}[theorem]{Exercise}                % amsthm [!amsthm!]
     \newnumbered{remark}[theorem]{Remark}                    % amsthm [!amsthm!]
     \newnumbered{question}[theorem]{Question}                % amsthm [!amsthm!]
-  \else
+  }{
     \newtheorem{example}[theorem]{Example}                  % amsthm [!amsthm!]
     \newtheorem{exercise}[theorem]{Exercise}                % amsthm [!amsthm!]
     \newtheorem{remark}[theorem]{Remark}                    % amsthm [!amsthm!]
     \newtheorem{question}[theorem]{Question}                % amsthm [!amsthm!]
-  \fi
+  }
 
   \renewcommand{\thetheorem}{\thesection.\arabic{theorem}}
   \renewcommand{\theconjecture}{\Alph{conjecture}}
@@ -283,18 +286,18 @@
     {\hspace*{\fill}\qed}%
     \fi}
 \else
-  \ifLMS
+  \ifClassIs{lms}{
     \let\qed\proofbox
     \let\qedhere\esinglebox
     \newcommand{\noproof}{{\hspace*{\fill}\proofbox}}
-  \else
+  }{
     \newcommand{\qed}{\leavevmode
       \hbox to.77778em{%
         \hfil\vrule
         \vbox to.675em{\hrule width.6em\vfil\hrule}%
         \vrule\hfil}}%
     \newcommand{\noproof}{{\hspace*{\fill}\qed}}
-  \fi
+  }
 \fi
 }{}
 
@@ -439,6 +442,6 @@
 	\renewcommand{\draftcolour}[2][named]{}
 \fi
 
-% Turn off tracking (safe to do even if we didn't turn it on)
+% Turn off tracking
 
-\cmdtrackfalse
+\@ifundefined{cmdtrackfalse}{}{\cmdtrackfalse}

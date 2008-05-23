@@ -1,0 +1,15 @@
+2008-04-30  Andrew Edgell Stacey  <andrew.stacey@math.ntnu.no>
+
+	* mymacros.sty: Altered 'checkon' and 'checkoff' in line with
+	updated cmdtrack package.
+
+2008-04-16  Andrew Edgell Stacey  <andrew.stacey@math.ntnu.no>
+
+	* mymacros.sty: Removed cmdtrack for beamer (seems to cause a
+	conflict with the maths alphabet).
+
+2008-04-15  Andrew Edgell Stacey  <andrew.stacey@math.ntnu.no>
+
+	* mymacros.sty: For the moment, removed theorem processing when
+	loading beamer class.
+
