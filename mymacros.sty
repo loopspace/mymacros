@@ -2,6 +2,8 @@
 \RequirePackage{xspace}
 \RequirePackage{home}
 
+% Currently has some issues with beamer
+
 \ifClassIs{beamer}{
 }{
  \RequirePackage[morose]{cmdtrack}
@@ -188,6 +190,14 @@
   \renewcommand{\draftpagecolour}[2][named]{\pagecolor[#1]{#2}}
 }
 
+\DeclareOption{final}{
+  \PassOptionToPackage{mydraft}{final}
+}
+
+\DeclareOption{collaborate}{
+  \PassOptionToPackage{mydraft}{collaborate}
+}
+
 \DeclareOption{all}{
   \ExecuteOptions{chcl,diff,abbrev,bb,geom,amsthm,fig}
 }
@@ -200,6 +210,8 @@
 \newcommand{\draftpagecolour}[2][named]{}
 
 \ProcessOptions
+
+\RequirePackage{mydraft}
 
 \useeso
 
@@ -326,18 +338,22 @@
 %
 
 \@ifpackageloaded{hyphenat}{%
-  \newcommand{\BreakableEnDash}{\leavevmode%
+  \@ifundefined{enhyp}{
+  \providecommand{\BreakableEnDash}{\leavevmode%
     \prw@zbreak--\discretionary{}{}{}\prw@zbreak}
   \DeclareRobustCommand{\enhyp}{%
     \ifmmode--\else\BreakableEnDash\fi}
+}{}
+  \@ifundefined{emhyp}{
   \newcommand{\BreakableEmDash}{\leavevmode%
     \prw@zbreak---\discretionary{}{}{}\prw@zbreak}
   \DeclareRobustCommand{\emhyp}{%
     \ifmmode---\else\BreakableEmDash\fi}
+}{}
 }{%
-  \newcommand{\hyp}{-\hspace{0pt}}
-  \newcommand{\enhyp}{--\hspace{0pt}}
-  \newcommand{\emhyp}{---\hspace{0pt}}
+  \providecommand{\hyp}{-\hspace{0pt}}
+  \providecommand{\enhyp}{--\hspace{0pt}}
+  \providecommand{\emhyp}{---\hspace{0pt}}
 }
 
 %
@@ -379,69 +395,7 @@
 }{}
 
 %
-% Useful editing commands.  All these only work in draft mode.
+% Turn off command tracking
 %
-
-\ifdraft
-  \ifx\comment\undefined
-    \newcommand{\comment}[1]{\emph{NB. #1}}
-  \else
-    \renewcommand{\comment}[1]{\emph{NB. #1}}
-  \fi
-
-  \newcommand{\here}{\vspace{12pt}\comment{I'm here!}\vspace{12pt}}
-
-  \RequirePackage{srcltx}
-
-%
-% If in draft mode, use showlabels.sty plus the following modification:
-% Addition to showlabels.sty - show where labels are used as well as
-% defined.  Square brackets for used, curly for defined.
-%
-
-  \RequirePackage{myshowlabels}
-
-  \showlabels{ref}
-  \showlabels{cite}
-
-%  \def\ref#1{\expandafter\@setref\csname r@#1\endcsname\@firstoftwo{#1}\marginpar{\makebox[\marginparwidth][l]{{\showlabelfont [#1]}}}}
-%  \def\nmref#1{\expandafter\@setref\csname r@#1\endcsname\@firstoftwo{#1}}
-
-%  \renewcommand{\eqref}[1]{\textup{\tagform@{\expandafter\@setref\csname r@#1\endcsname\@firstoftwo{#1}}}\marginpar{\makebox[\marginparwidth][l]{{\showlabelfont [#1]}}}}
-%  \newcommand{\nmeqref}[1]{\textup{\tagform@{\expandafter\@setref\csname r@#1\endcsname\@firstoftwo{#1}}}}
-
-  \addtolength{\hoffset}{-110pt}
-
-  \newcommand{\aim}[1]{\noindent \textbf{Aim:} \emph{#1} \bigskip}
-  \newcommand{\concept}[1]{\noindent \textsc{Concept:} \emph{#1} \bigskip}
-  \newcommand{\note}[1]{\noindent \textit{Note:} \textbf{\emph{#1}} \bigskip}
-  \newenvironment{notes}{\noindent \textit{Notes:}\enumerate}
-	{\endenumerate \noindent \textit{End of notes} \bigskip}
-
-%%% Have a nice background whilst in draft mode
-
-\wallpaper{100-3780a4}
-
-
-\else
-
-% Not in draft mode, kill the above commands
-
-	\newcommand{\aim}[1]{}
-	\newcommand{\concept}[1]{}
-	\newcommand{\nmref}[1]{\ref{#1}}
-	\newcommand{\nmeqref}[1]{\eqref{#1}}
-	\newenvironment{notes}{}{}
-
-%
-% Don't implement the wallpaper stuff, even if asked for, outside draft mode
-%
-
-	\renewcommand{\wallpaper}[2][Orange]{}
-	\renewcommand{\nowallpaper}{}
-	\renewcommand{\draftcolour}[2][named]{}
-\fi
-
-% Turn off tracking
 
 \@ifundefined{cmdtrackfalse}{}{\cmdtrackfalse}
