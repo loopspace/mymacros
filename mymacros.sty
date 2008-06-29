@@ -1,12 +1,14 @@
 \ProvidesPackage{mymacros}
 \RequirePackage{xspace}
-\RequirePackage{home}
+%\RequirePackage{home}
 
 % Currently has some issues with beamer
 
 \ifClassIs{beamer}{
 }{
+\ifdraft
  \RequirePackage[morose]{cmdtrack}
+\fi
 }
 
 %
@@ -211,7 +213,9 @@
 
 \ProcessOptions
 
+\ifdraft
 \RequirePackage{mydraft}
+\fi
 
 \useeso
 
