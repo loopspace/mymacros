@@ -2,6 +2,13 @@
 \RequirePackage{xspace}
 %\RequirePackage{home}
 
+\@ifundefined{ifClassIs}{%
+  \newcommand{\ifClassIs}[2]{}
+}{}
+
+\@ifundefined{drafttrue}{%
+  \newif\ifdraft}{}
+
 % Currently has some issues with beamer
 
 \ifClassIs{beamer}{
@@ -234,42 +241,65 @@
 
 \ifthe@rem
   \if@msthm
-    \newtheoremstyle{thm}{3pt}{3pt}{\itshape}{}{\bfseries}{}{.5em}{}
-    \newtheoremstyle{thmsub}{3pt}{3pt}{\upshape}{}{\bfseries}{}{.5em}{}
 
-    \theoremstyle{thm}
+    \@ifundefined{th@my@style@thm}{%
+  \newtheoremstyle{my@style@thm}{3pt}{3pt}{\itshape}{}{\bfseries}{}{.5em}{}
+    }{}
+
+    \def\mythmstyle{my@style@thm}
+
+    \@ifundefined{th@my@style@def}{%
+  \newtheoremstyle{my@style@def}{3pt}{3pt}{\itshape}{}{\bfseries}{}{.5em}{}
+    }{}
+
+    \def\mydefstyle{my@style@thm}
+
+    \@ifundefined{th@my@style@rmk}{%
+  \newtheoremstyle{my@style@rmk}{3pt}{3pt}{\upshape}{}{\bfseries}{}{.5em}{}
+    }{}
+
+    \def\myrmkstyle{my@style@rmk}
+
+    \theoremstyle{\mythmstyle}
+
   \fi
 
   \newtheorem{theorem}{Theorem}[section]                  % amsthm [!amsthm!]
   \newtheorem{lemma}[theorem]{Lemma}                      % amsthm [!amsthm!]
   \newtheorem{proposition}[theorem]{Proposition}          % amsthm [!amsthm!]
 
-  \ifClassIs{lms}{
-    \newnumbered{defn}[theorem]{Definition}                 % amsthm [!amsthm!]
-    \newnumbered{conjecture}{Conjecture}                     % amsthm [!amsthm!]
-    \newnumbered{axiom}[theorem]{Axiom}                      % amsthm [!amsthm!]
-  }{
-    \newtheorem{defn}[theorem]{Definition}                  % amsthm [!amsthm!]
-    \newtheorem{conjecture}{Conjecture}                     % amsthm [!amsthm!]
-    \newtheorem{axiom}[theorem]{Axiom}                      % amsthm [!amsthm!]
-
-% Starred versions are automatic under LMS
-    \newtheorem*{defn*}{Definition}                         % amsthm [!amsthm!]
-    \newtheorem*{conjecture*}{Conjecture}                   % amsthm [!amsthm!]
-    \newtheorem*{axiom*}{Axiom}                             % amsthm [!amsthm!]
-    \newtheorem*{theorem*}{Theorem}                         % amsthm [!amsthm!]
-    \newtheorem*{lemma*}{Lemma}                             % amsthm [!amsthm!]
-    \newtheorem*{proposition*}{Proposition}                 % amsthm [!amsthm!]
-    \newtheorem*{corollary*}{Corollary}                     % amsthm [!amsthm!]
-  }
-
     \newtheorem{corollary}[theorem]{Corollary}              % amsthm [!amsthm!]
     \newtheorem{thm}{Theorem}                               % amsthm [!amsthm!]
     \newtheorem{cor}[thm]{Corollary}                        % amsthm [!amsthm!]
     \newtheorem{deflemma}[theorem]{Definition and Lemma}    % amsthm [!amsthm!]
 
+  \ifClassIs{lms}{
+    \newnumbered{defn}[theorem]{Definition}                 % amsthm [!amsthm!]
+    \newnumbered{conjecture}{Conjecture}                     % amsthm [!amsthm!]
+    \newnumbered{axiom}[theorem]{Axiom}                      % amsthm [!amsthm!]
+  }{
+
+% Starred versions are automatic under LMS
+    \newtheorem*{theorem*}{Theorem}                         % amsthm [!amsthm!]
+    \newtheorem*{lemma*}{Lemma}                             % amsthm [!amsthm!]
+    \newtheorem*{proposition*}{Proposition}                 % amsthm [!amsthm!]
+    \newtheorem*{corollary*}{Corollary}                     % amsthm [!amsthm!]
+
   \if@msthm
-    \theoremstyle{thmsub}
+    \theoremstyle{\mydefstyle}
+  \fi
+
+    \newtheorem{defn}[theorem]{Definition}                  % amsthm [!amsthm!]
+    \newtheorem{conjecture}{Conjecture}                     % amsthm [!amsthm!]
+    \newtheorem{axiom}[theorem]{Axiom}                      % amsthm [!amsthm!]
+
+    \newtheorem*{defn*}{Definition}                         % amsthm [!amsthm!]
+    \newtheorem*{conjecture*}{Conjecture}                   % amsthm [!amsthm!]
+    \newtheorem*{axiom*}{Axiom}                             % amsthm [!amsthm!]
+  }
+
+  \if@msthm
+    \theoremstyle{\myrmkstyle}
   \fi
 
   \ifClassIs{lms}{
@@ -315,6 +345,12 @@
     \newcommand{\noproof}{{\hspace*{\fill}\qed}}
   }
 \fi
+}{}
+
+% \noproof looks a little daft if the qed symbol is 'q.e.d.'
+
+\ifClassIs{jdg-p}{
+  \renewcommand{\noproof}{}
 }{}
 
 %

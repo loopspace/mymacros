@@ -1,3 +1,8 @@
+2008-08-28  Andrew Edgell Stacey  <andrew.stacey@math.ntnu.no>
+
+	* mymacros.sty: Modified theoremstyle handling to allow overriding
+	of default types.
+
 2008-04-30  Andrew Edgell Stacey  <andrew.stacey@math.ntnu.no>
 
 	* mymacros.sty: Altered 'checkon' and 'checkoff' in line with
