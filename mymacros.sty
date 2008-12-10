@@ -435,6 +435,20 @@
 }{}
 
 %
+% Adjust page size (should check for page size I guess)
+%
+
+\newlength{\resize}
+
+\newcommand{\textarea}[1]{%
+  \setlength{\resize}{#1}%
+  \addtolength{\textwidth}{\resize}
+  \addtolength{\hoffset}{-.5\resize}
+  \addtolength{\textheight}{1.4\resize}
+  \addtolength{\voffset}{-.7\resize}
+}
+
+%
 % Turn off command tracking
 %
 
