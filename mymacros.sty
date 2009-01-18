@@ -449,6 +449,28 @@
 }
 
 %
+% Beamer lecture hack
+%
+\ifClassIs{beamer}{
+\newcommand{\LectureTitlePage}{%
+  \def\inserttitle{{Lecture \insertlecturenumber: \insertlecture}}
+  \def\insertdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
+  \titlepage
+}}{}
+
+
+\@ifpackageloaded{beamerarticle}{
+    \newcommand{\LectureTitlePage}{%
+  \def\inserttitle{{Lecture \insertlecturenumber: \insertlecture}}
+  \def\insertdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
+  \titlepage
+}
+}{}
+
+  
+
+
+%
 % Turn off command tracking
 %
 
