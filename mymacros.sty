@@ -449,12 +449,20 @@
 }
 
 %
-% Beamer lecture hack
+% Beamer and beamer-related stuff
 %
+
+%
+% Hack the title page to make a 'lecture title page' for each lecture
+%
+
 \ifClassIs{beamer}{
 \newcommand{\LectureTitlePage}{%
-  \def\inserttitle{{Lecture \insertlecturenumber: \insertlecture}}
-  \def\insertdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
+    \setcounter{framenumber}{0}
+    \global\def\inserttitle{{Lecture \insertlecturenumber: \insertlecture}}
+    \global\def\insertshorttitle{{Lecture \insertlecturenumber: \insertlecture}}
+    \global\def\insertdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
+    \global\def\insertshortdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
   \titlepage
 }}{}
 
@@ -467,7 +475,59 @@
 }
 }{}
 
-  
+%
+% If using pgfpages and pgf, defined a boxed version of 4up
+%
+
+\@ifpackageloaded{pgfpages}{
+  \@ifpackageloaded{pgf}{
+\pgfpagesdeclarelayout{4 on 1 boxed}
+{
+  \edef\pgfpageoptionheight{\the\paperheight} 
+  \edef\pgfpageoptionwidth{\the\paperwidth}
+  \edef\pgfpageoptionborder{0pt}
+}
+{
+  \pgfpagesphysicalpageoptions
+  {%
+    logical pages=4,%
+    physical height=\pgfpageoptionheight,%
+    physical width=\pgfpageoptionwidth%
+  }
+  \pgfpageslogicalpageoptions{1}
+  {%
+    border code=\pgfsetlinewidth{2pt}\pgfstroke,%
+    border shrink=\pgfpageoptionborder,%
+    resized width=.5\pgfphysicalwidth,%
+    resized height=.5\pgfphysicalheight,%
+    center=\pgfpoint{.25\pgfphysicalwidth}{.75\pgfphysicalheight}%
+  }%
+  \pgfpageslogicalpageoptions{2}
+  {%
+    border code=\pgfsetlinewidth{2pt}\pgfstroke,%
+    border shrink=\pgfpageoptionborder,%
+    resized width=.5\pgfphysicalwidth,%
+    resized height=.5\pgfphysicalheight,%
+    center=\pgfpoint{.75\pgfphysicalwidth}{.75\pgfphysicalheight}%
+  }%
+  \pgfpageslogicalpageoptions{3}
+  {%
+    border code=\pgfsetlinewidth{2pt}\pgfstroke,%
+    border shrink=\pgfpageoptionborder,%
+    resized width=.5\pgfphysicalwidth,%
+    resized height=.5\pgfphysicalheight,%
+    center=\pgfpoint{.25\pgfphysicalwidth}{.25\pgfphysicalheight}%
+  }%
+  \pgfpageslogicalpageoptions{4}
+  {%
+    border code=\pgfsetlinewidth{2pt}\pgfstroke,%
+    border shrink=\pgfpageoptionborder,%
+    resized width=.5\pgfphysicalwidth,%
+    resized height=.5\pgfphysicalheight,%
+    center=\pgfpoint{.75\pgfphysicalwidth}{.25\pgfphysicalheight}%
+  }%
+}
+}{}}{}
 
 
 %
