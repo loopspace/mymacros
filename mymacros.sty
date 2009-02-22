@@ -165,7 +165,7 @@
   \providecommand{\colour}[1]{\color{#1}}
   \providecommand{\definecolour}[3]{\definecolor{#1}{#2}{#3}}
 
-  \providecommand{\myfig}[1]{%
+  \providecommand{\my@fig}[1]{%
       \myw@rning{Looking for \figdir/#1.pstex_t}
       \IfFileExists{\figdir/#1.pstex_t}{%
         \myw@rning{\figdir/#1.pstex_t found}%
@@ -174,6 +174,15 @@
         \myw@rning{\figdir/#1.pstex_t not found}%
         \includegraphics{\figdir/#1}%
       }%
+    }
+
+    \ifClassIs{beamer}{%
+      \providecommand{\myfig}[1]{%
+        \ifbeamer@inlecture
+          \my@fig{#1}%
+        \fi
+        }}{%
+      \let\myfig\my@fig
     }
 }
 
