@@ -273,6 +273,24 @@
 
   \fi
 
+  \ifClassIs{lms}{
+    \let\my@newtheorem\newtheorem
+    \newcommand{\theoremstyle}[1]{%
+    \def\my@style@given{#1}
+    \ifx\my@style@given\mythmstyle
+     \let\newtheorem\my@newtheorem
+    \else
+     \ifx\my@style@given\mydefstyle
+      \let\newtheorem\my@newtheorem
+     \else
+     \ifx\my@style@given\myrmkstyle
+      \let\newtheorem\newnumbered
+     \fi
+    \fi
+   \fi
+    }
+  }{}
+
   \newtheorem{theorem}{Theorem}[section]                  % amsthm [!amsthm!]
   \newtheorem{lemma}[theorem]{Lemma}                      % amsthm [!amsthm!]
   \newtheorem{proposition}[theorem]{Proposition}          % amsthm [!amsthm!]
@@ -343,7 +361,11 @@
 \else
   \ifClassIs{lms}{
     \let\qed\proofbox
-    \let\qedhere\esinglebox
+% The LMS way of putting a qed symbol at the end of an equation is
+% broken so we don't use it.  Short of importing the relevant bits
+% from amsthm.sty, I don't know how to fix it.
+
+    \let\qedhere\@empty
     \newcommand{\noproof}{{\hspace*{\fill}\proofbox}}
   }{
     \newcommand{\qed}{\leavevmode
