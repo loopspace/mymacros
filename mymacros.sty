@@ -1,5 +1,6 @@
 \ProvidesPackage{mymacros}
 \RequirePackage{xspace}
+\RequirePackage{providetheorem}
 %\RequirePackage{home}
 
 \@ifundefined{ifClassIs}{%
@@ -61,13 +62,13 @@
 % Beamer predefines loads of the theorem variants, best leave them
 % alone (for now)
 
-\ifClassIs{beamer}{
- \the@remfalse
-}{}
+%\ifClassIs{beamer}{
+% \the@remfalse
+%}{}
 
-\@ifpackageloaded{beamerarticle}{
-  \the@remfalse
-}{}
+%\@ifpackageloaded{beamerarticle}{
+%  \the@remfalse
+%}{}
 
 % Debug option
 
@@ -249,6 +250,7 @@
 %
 
 \ifthe@rem
+
   \if@msthm
 
     \@ifundefined{th@my@style@thm}{%
@@ -269,77 +271,66 @@
 
     \def\myrmkstyle{my@style@rmk}
 
-    \theoremstyle{\mythmstyle}
-
   \fi
 
   \ifClassIs{lms}{
-    \let\my@newtheorem\newtheorem
+    \let\my@newtheorem\providetheorem
     \newcommand{\theoremstyle}[1]{%
     \def\my@style@given{#1}
     \ifx\my@style@given\mythmstyle
-     \let\newtheorem\my@newtheorem
+     \let\providetheorem\my@newtheorem
     \else
      \ifx\my@style@given\mydefstyle
-      \let\newtheorem\my@newtheorem
+      \let\providetheorem\my@newtheorem
      \else
      \ifx\my@style@given\myrmkstyle
-      \let\newtheorem\newnumbered
+      \let\providetheorem\newnumbered % Need to define 'providenumbered' in providetheorem.sty
      \fi
     \fi
    \fi
     }
   }{}
 
-  \newtheorem{theorem}{Theorem}[section]                  % amsthm [!amsthm!]
-  \newtheorem{lemma}[theorem]{Lemma}                      % amsthm [!amsthm!]
-  \newtheorem{proposition}[theorem]{Proposition}          % amsthm [!amsthm!]
+\@ifundefined{theoremstyle}{%
+  \newcommand{\theoremstyle}[1]{}}{}
 
-    \newtheorem{corollary}[theorem]{Corollary}              % amsthm [!amsthm!]
-    \newtheorem{thm}{Theorem}                               % amsthm [!amsthm!]
-    \newtheorem{cor}[thm]{Corollary}                        % amsthm [!amsthm!]
-    \newtheorem{deflemma}[theorem]{Definition and Lemma}    % amsthm [!amsthm!]
+    \theoremstyle{\mythmstyle}
 
-  \ifClassIs{lms}{
-    \newnumbered{defn}[theorem]{Definition}                 % amsthm [!amsthm!]
-    \newnumbered{conjecture}{Conjecture}                     % amsthm [!amsthm!]
-    \newnumbered{axiom}[theorem]{Axiom}                      % amsthm [!amsthm!]
-  }{
+  \providetheorem{theorem}{Theorem}[section]
+  \providetheorem{lemma}[theorem]{Lemma}
+  \providetheorem{proposition}[theorem]{Proposition}
 
+    \providetheorem{corollary}[theorem]{Corollary}
+    \providetheorem{thm}{Theorem}
+    \providetheorem{cor}[thm]{Corollary}
+    \providetheorem{deflemma}[theorem]{Definition and Lemma}
+
+\ifClassIs{lms}{}{
 % Starred versions are automatic under LMS
-    \newtheorem*{theorem*}{Theorem}                         % amsthm [!amsthm!]
-    \newtheorem*{lemma*}{Lemma}                             % amsthm [!amsthm!]
-    \newtheorem*{proposition*}{Proposition}                 % amsthm [!amsthm!]
-    \newtheorem*{corollary*}{Corollary}                     % amsthm [!amsthm!]
+    \providetheorem*{theorem*}{Theorem}
+    \providetheorem*{lemma*}{Lemma}
+    \providetheorem*{proposition*}{Proposition}
+    \providetheorem*{corollary*}{Corollary}
+}
 
-  \if@msthm
-    \theoremstyle{\mydefstyle}
-  \fi
+\theoremstyle{\mydefstyle}
 
-    \newtheorem{defn}[theorem]{Definition}                  % amsthm [!amsthm!]
-    \newtheorem{conjecture}{Conjecture}                     % amsthm [!amsthm!]
-    \newtheorem{axiom}[theorem]{Axiom}                      % amsthm [!amsthm!]
+    \providetheorem{defn}[theorem]{Definition}
+    \providetheorem{conjecture}{Conjecture}
+    \providetheorem{axiom}[theorem]{Axiom}
 
-    \newtheorem*{defn*}{Definition}                         % amsthm [!amsthm!]
-    \newtheorem*{conjecture*}{Conjecture}                   % amsthm [!amsthm!]
-    \newtheorem*{axiom*}{Axiom}                             % amsthm [!amsthm!]
-  }
+\ifClassIs{lms}{}{
+    \providetheorem*{defn*}{Definition}
+    \providetheorem*{conjecture*}{Conjecture}
+    \providetheorem*{axiom*}{Axiom}
+}
 
-  \if@msthm
     \theoremstyle{\myrmkstyle}
-  \fi
 
-  \ifClassIs{lms}{
-    \newnumbered{example}[theorem]{Example}                  % amsthm [!amsthm!]
-    \newnumbered{exercise}[theorem]{Exercise}                % amsthm [!amsthm!]
-    \newnumbered{remark}[theorem]{Remark}                    % amsthm [!amsthm!]
-    \newnumbered{question}[theorem]{Question}                % amsthm [!amsthm!]
-  }{
-    \newtheorem{example}[theorem]{Example}                  % amsthm [!amsthm!]
-    \newtheorem{exercise}[theorem]{Exercise}                % amsthm [!amsthm!]
-    \newtheorem{remark}[theorem]{Remark}                    % amsthm [!amsthm!]
-    \newtheorem{question}[theorem]{Question}                % amsthm [!amsthm!]
-  }
+    \providetheorem{example}[theorem]{Example}
+    \providetheorem{exercise}[theorem]{Exercise}
+    \providetheorem{remark}[theorem]{Remark}
+    \providetheorem{question}[theorem]{Question}
 
   \renewcommand{\thetheorem}{\thesection.\arabic{theorem}}
   \renewcommand{\theconjecture}{\Alph{conjecture}}
