@@ -257,26 +257,24 @@
   \newtheoremstyle{my@style@thm}{3pt}{3pt}{\itshape}{}{\bfseries}{}{.5em}{}
     }{}
 
-    \def\mythmstyle{my@style@thm}
-
     \@ifundefined{th@my@style@def}{%
   \newtheoremstyle{my@style@def}{3pt}{3pt}{\itshape}{}{\bfseries}{}{.5em}{}
     }{}
-
-    \def\mydefstyle{my@style@thm}
 
     \@ifundefined{th@my@style@rmk}{%
   \newtheoremstyle{my@style@rmk}{3pt}{3pt}{\upshape}{}{\bfseries}{}{.5em}{}
     }{}
 
-    \def\myrmkstyle{my@style@rmk}
-
   \fi
+
+    \def\mythmstyle{my@style@thm}
+    \def\mydefstyle{my@style@thm}
+    \def\myrmkstyle{my@style@rmk}
 
   \ifClassIs{lms}{
     \let\my@newtheorem\providetheorem
     \newcommand{\theoremstyle}[1]{%
-    \def\my@style@given{#1}
+    \edef\my@style@given{#1}
     \ifx\my@style@given\mythmstyle
      \let\providetheorem\my@newtheorem
     \else
@@ -439,6 +437,7 @@
        \lvert #1 \rvert
      \fi}}
   \newcommand{\sabs}[1]{\lvert #1 \rvert}                         % [!amsmath!]
+  \newcommand{\dabs}[1]{\left\lvert #1 \right\rvert}              % [!amsmath!]
   \newcommand{\norm}[1][\cdot]{\left\lVert #1 \right\rVert}       % [!amsmath!]
   \newcommand{\ip}[2]{\langle #1, #2 \rangle}                     % [!amsmath!]
 }{}
@@ -486,6 +485,19 @@
     \global\def\insertdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
     \global\def\insertshortdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
   \titlepage
+}
+% Allow frames to not be in any lecture without disrupting flow
+\newcommand{\nolecture}{%
+  \beamer@savemode
+  \mode<all>
+  \def\beamer@currentlecturelabel{}
+  \def\beamer@lecturename{}
+  \def\beamer@shortlecturename{}
+  \ifx\beamer@onlylecture\@empty
+  \else
+    \beamer@inlecturefalse
+  \fi
+  \beamer@resumemode
 }}{}
 
 
