@@ -498,7 +498,17 @@
     \beamer@inlecturefalse
   \fi
   \beamer@resumemode
-}}{}
+}
+
+% Blank out non-displaying lectures rather than just not showing them
+% (Speeds up compilation considerably)
+
+\newcommand{\lecturemode}{%
+    \ifbeamer@inlecture
+    \else
+      \expandafter\mode\expandafter<\expandafter n\expandafter o\expandafter n\expandafter e\expandafter >\fi
+}
+}{}
 
 
 \@ifpackageloaded{beamerarticle}{
