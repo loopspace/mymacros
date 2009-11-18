@@ -508,7 +508,45 @@
     \else
       \expandafter\mode\expandafter<\expandafter n\expandafter o\expandafter n\expandafter e\expandafter >\fi
 }
-}{}
+
+
+% Sometimes the default spacing around displayed maths is a bit big
+% for my liking.  This gives the option of altering that spacing.  The
+% difference between sdmath and simath is what happens in article
+% mode.  One is replaced by equation*, the other by just math.
+
+\newlength{\smathgap}
+\newenvironment<>{sdmath}[1][0pt]{%
+    \setlength{\smathgap}{#1}
+    \begin{altenv}#2{%
+      \par\vspace{\smathgap}\par%
+      \hspace*{\fill}%
+      \math\displaystyle%
+    }{%
+      \endmath%
+      \hspace*{\fill}%
+      \par\vspace{\smathgap}\par%
+    }{%
+      \begin{equation*}%
+    }{%
+  \end{equation*}}}{\end{altenv}}
+
+  \newenvironment<>{simath}[1][0pt]{%
+    \setlength{\smathgap}{#1}
+    \begin{altenv}#2{%
+      \par\vspace{\smathgap}\par%
+      \hspace*{\fill}%
+      \math\displaystyle%
+    }{%
+      \endmath%
+      \hspace*{\fill}%
+      \par\vspace{\smathgap}\par%
+    }{%
+      \begin{math}%
+    }{%
+  \end{math}}}{\end{altenv}}
+  
+}{}  %%% End: ifClassIs{beamer}
 
 
 \@ifpackageloaded{beamerarticle}{
