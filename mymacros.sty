@@ -217,6 +217,17 @@
   \PassOptionToPackage{mydraft}{collaborate}
 }
 
+\DeclareOption{lecture}{
+
+  \AtBeginLecture{
+    \begin{frame}[plain]
+    \LectureTitlePage
+    \end{frame}
+    \lecturemode
+  }
+
+}
+
 \DeclareOption{all}{
   \ExecuteOptions{chcl,diff,abbrev,bb,geom,amsthm,fig}
 }
@@ -546,6 +557,11 @@
     }{%
   \end{math}}}{\end{altenv}}
   
+\newcommand{\itpause}{%
+\addtocounter{beamerpauses}{-1}
+\pause
+}
+
 }{}  %%% End: ifClassIs{beamer}
 
 
@@ -555,6 +571,21 @@
   \def\insertdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
   \titlepage
 }
+}{}
+
+% Mathematical highlighting
+
+\@ifpackageloaded{xcolor}{
+  
+  \newcount\type@count
+  \def\type@pushcolour{%
+    \xglobal\colorlet{foo\the\type@count}{.}%
+    \global\advance\type@count by1\relax}
+  \def\type@popcolour{%
+    \global\advance\type@count by-1\relax%
+    \color{foo\the\type@count}}
+  \newcommand{\type}[2]{\type@pushcolour\color{#1}#2\type@popcolour}
+
 }{}
 
 %
