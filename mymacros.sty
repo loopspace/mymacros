@@ -70,6 +70,17 @@
 %  \the@remfalse
 %}{}
 
+%
+% Add before macro
+%
+
+\long\def\g@addbefore@macro#1#2{%
+\begingroup
+\def\@tempa{#2}
+\toks@\expandafter\expandafter\expandafter{\expandafter\@tempa#1}%
+\xdef#1{\the\toks@}%
+\endgroup}
+
 % Debug option
 
 \newcommand{\myw@rning}[1]{}
@@ -219,7 +230,7 @@
 
 \DeclareOption{lecture}{
 
-  \AtBeginLecture{
+  \g@addbefore@macro\beamer@atbeginlecture{
     \begin{frame}[plain]
     \LectureTitlePage
     \end{frame}
