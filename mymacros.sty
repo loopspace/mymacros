@@ -10,6 +10,8 @@
 \@ifundefined{drafttrue}{%
   \newif\ifdraft}{}
 
+\newif\ifrequire@xcolor
+
 % Currently has some issues with beamer
 
 \ifClassIs{beamer}{
@@ -239,6 +241,34 @@
 
 }
 
+
+\DeclareOption{typecasting}{
+
+\require@xcolortrue
+
+% Mathematical highlighting
+
+  \newcount\type@count
+  \def\type@pushcolour{%
+    \xglobal\colorlet{foo\the\type@count}{.}%
+    \global\advance\type@count by1\relax}
+  \def\type@popcolour{%
+    \global\advance\type@count by-1\relax%
+    \color{foo\the\type@count}}
+
+  \newcommand{\type}[2]{%
+  \def\ty@temp{#2}
+  \expandafter\def\csname ty\expandafter\string\ty@temp\endcsname{\@ifundefined{type@#1}{\type@pushcolour\color{#1}#2\type@popcolour}{\csname type@#1\endcsname{#2}}}}
+
+  \newcommand{\ty}[1]{\def\ty@temp{#1}\csname ty\expandafter\string\ty@temp\endcsname}
+
+
+% Temporary use for right now
+\newcommand{\pety}[2]{\@ifundefined{type@#1}{\type@pushcolour\color{#1}#2\type@popcolour}{\csname type@#1\endcsname{#2}}}
+
+}
+
+
 \DeclareOption{all}{
   \ExecuteOptions{chcl,diff,abbrev,bb,geom,amsthm,fig}
 }
@@ -251,6 +281,10 @@
 \newcommand{\draftpagecolour}[2][named]{}
 
 \ProcessOptions
+
+\ifrequire@xcolor
+\RequirePackage{xcolor}
+\fi
 
 \ifdraft
 \RequirePackage{mydraft}
@@ -582,21 +616,6 @@
   \def\insertdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
   \titlepage
 }
-}{}
-
-% Mathematical highlighting
-
-\@ifpackageloaded{xcolor}{
-  
-  \newcount\type@count
-  \def\type@pushcolour{%
-    \xglobal\colorlet{foo\the\type@count}{.}%
-    \global\advance\type@count by1\relax}
-  \def\type@popcolour{%
-    \global\advance\type@count by-1\relax%
-    \color{foo\the\type@count}}
-  \newcommand{\type}[2]{\type@pushcolour\color{#1}#2\type@popcolour}
-
 }{}
 
 %
