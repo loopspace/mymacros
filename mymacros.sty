@@ -119,7 +119,11 @@
 \DeclareOption{bb}{
   \ifx\mathbb\undefined
   \else
-  \newcommand{\C}{\ensuremath {\mathbb{C}}\xspace}  % bb [amssymb/math/pxfonts]
+  \@ifundefined{C}{%
+    \newcommand{\C}{\ensuremath {\mathbb{C}}\xspace}  % bb [amssymb/math/pxfonts]
+  }{%
+    \renewcommand{\C}{\ensuremath {\mathbb{C}}\xspace}  % bb [amssymb/math/pxfonts]
+  }
   \newcommand{\CP}{\ensuremath {\mathbb{CP}}\xspace}% bb [amssymb/math/pxfonts]
   \newcommand{\F}{\ensuremath {\mathbb{F}}\xspace}  % bb [amssymb/math/pxfonts]
   \newcommand{\N}{\ensuremath {\mathbb{N}}\xspace}  % bb [amssymb/math/pxfonts]
@@ -244,30 +248,107 @@
 
 \DeclareOption{typecasting}{
 
-\require@xcolortrue
+  \@ifpackageloaded{unicode-math}{
+    \require@xcolortrue
 
 % Mathematical highlighting
 
-  \newcount\type@count
-  \def\type@pushcolour{%
-    \xglobal\colorlet{foo\the\type@count}{.}%
-    \global\advance\type@count by1\relax}
-  \def\type@popcolour{%
-    \global\advance\type@count by-1\relax%
-    \color{foo\the\type@count}}
-
-  \newcommand{\type}[2]{%
-  \def\ty@temp{#2}
-  \expandafter\def\csname ty\expandafter\string\ty@temp\endcsname{\@ifundefined{type@#1}{\type@pushcolour\color{#1}#2\type@popcolour}{\csname type@#1\endcsname{#2}}}}
-
-  \newcommand{\ty}[1]{\def\ty@temp{#1}\csname ty\expandafter\string\ty@temp\endcsname}
-
+    \newcount\my@colour@count
+    \def\my@pushcolour{%
+      \xglobal\colorlet{foo\the\my@colour@count}{.}%
+      \global\advance\my@colour@count by1\relax}
+    \def\my@popcolour{%
+      \global\advance\my@colour@count by-1\relax%
+      \color{foo\the\my@colour@count}}
 
 % Temporary use for right now
-\newcommand{\pety}[2]{\@ifundefined{type@#1}{\type@pushcolour\color{#1}#2\type@popcolour}{\csname type@#1\endcsname{#2}}}
+    \newcommand{\pety}[2]{\my@pushcolour\color{#1}#2\my@popcolour}
 
+    \setmathfont{xits-math.otf}
+
+    \ifdraft
+    \renewcommand{\setmathfont}[2][]{}
+    \fi
+
+% This seems to be needed to 'reset' the changes
+    \setmathfont[range="20,Colour=000000]{xits-math.otf}
+
+% This declares a new "type" consisting of options to be passed to the
+% \setmathfont command (perhaps edef would be better)
+    \newcommand{\newtype}[2]{%
+      \expandafter\def\csname my@type@#1\endcsname{#2}%
+    }
+
+% This defines a "type" for a particular letter
+% The letter needs to be specified by a number (its position in the
+% unicode chart)
+
+    \newcommand{\my@type}[2]{%
+      \@ifundefined{my@type@#1}{%
+        \setmathfont[math-style=TeX,Colour=#1,range=#2]{xits-math.otf}
+      }{%
+        \edef\ty@temp{\noexpand\setmathfont[\csname                              my@type@#1\endcsname,range=#2]
+          {xits-math.otf}}%
+        \ty@temp
+      }
+    }
+
+% This defines a "type" for a specified letter, or list of letters.
+
+    \newcount\ty@char
+    \newcommand{\chartype}[2]{%
+      \@for\@ii:=#2\do{%
+        \expandafter\ty@char\expandafter=\expandafter`\@ii
+        \edef\ty@bar{\the\ty@char}%
+        \edef\ty@baz{#1}%
+        \begingroup
+        \edef\ty@temp{%
+          \endgroup
+          \noexpand\my@type
+              {\unexpanded\expandafter{\ty@baz}}%
+              {\unexpanded\expandafter{\ty@bar}}%
+        }%
+        \ty@temp
+      }%
+    }
+
+% This works for things specified by numbers
+
+    \newcommand{\numtype}[2]{%
+      \@for\@ii:=#2\do{%
+        \edef\ty@bar{\@ii}%
+        \edef\ty@baz{#1}%
+        \begingroup
+        \edef\ty@temp{%
+          \endgroup
+          \noexpand\my@type
+              {\unexpanded\expandafter{\ty@baz}}%
+              {\unexpanded\expandafter{\ty@bar}}%
+        }%
+        \ty@temp
+      }%
+    }
+  }{%
+    % If unicode-math isn't loaded everything becomes a warning
+    \myw@rning{Typing requires unicode-math.sty package}%
+    \newcommand{\newtype}[2]{%
+      \myw@rning{Typing requires unicode-math.sty package}%
+    }
+    \newcommand{\numtype}[2]{%
+      \myw@rning{Typing requires unicode-math.sty package}%
+    }
+    \newcommand{\chartype}[2]{%
+      \myw@rning{Typing requires unicode-math.sty package}%
+    }
+    \newcommand{\setmathfont}[2][]{%
+      \myw@rning{Typing requires unicode-math.sty package}%
+    }
+    \newcommand{\pety}[2]{%
+      \myw@rning{Typing requires unicode-math.sty package}%
+      #2%
+    }
+  }
 }
-
 
 \DeclareOption{all}{
   \ExecuteOptions{chcl,diff,abbrev,bb,geom,amsthm,fig}
@@ -299,6 +380,7 @@
 
 \@ifundefined{centre}{%
 \newenvironment{centre}{\center}{\endcenter}%
+\let\centring\centering
 }{}
 
 %
@@ -486,6 +568,16 @@
 
 \@ifpackageloaded{amsmath}{%
   \renewcommand{\above}[2]{\genfrac{}{}{0pt}{}{#1}{#2}}           % [!amsmath!]
+
+%
+% unicode-math doesn't like stretchy bars for some reason
+%
+\@ifpackageloaded{unicode-math}{% 
+  \newcommand{\sabs}[1]{\lvert #1 \rvert}                         % [!amsmath!]
+\let\abs\sabs
+\let\dabs\sabs
+\newcommand{\norm}[1][\cdot]{\lVert #1 \rVert}%
+}{
   \newcommand{\abs}[1]{%                                          % [!amsmath!]
     {\if@display
        \left\lvert #1 \right\rvert
@@ -495,8 +587,11 @@
   \newcommand{\sabs}[1]{\lvert #1 \rvert}                         % [!amsmath!]
   \newcommand{\dabs}[1]{\left\lvert #1 \right\rvert}              % [!amsmath!]
   \newcommand{\norm}[1][\cdot]{\left\lVert #1 \right\rVert}       % [!amsmath!]
+}
   \newcommand{\ip}[2]{\langle #1, #2 \rangle}                     % [!amsmath!]
 }{}
+
+
 
 %
 % If we use the fancyhdr package
@@ -606,6 +701,50 @@
 \addtocounter{beamerpauses}{-1}
 \pause
 }
+
+%
+% A 'step' command that steps through a comma-delimited list
+% on successive frames
+%
+
+\newcounter{step@count}
+\newcommand\step[2]{%
+  \setcounter{step@count}{1}%
+  \@for\@ii:=#1\do{%
+    \only<.(\thestep@count)|handout: 0|trans: 0>{\@ii}%
+    \refstepcounter{step@count}%
+  }%
+  \only<.(\thestep@count)->{#2}%
+%  \refstepcounter{step@count}%
+  \addtocounter{step@count}{\thebeamerpauses}%
+  \pause[\thestep@count]%
+}
+
+%
+% As for \step, but without changing the pause count
+%
+
+\newcommand\vstep[2]{%
+  \setcounter{step@count}{1}%
+  \@for\@ii:=#1\do{%
+    \only<.(\thestep@count)|handout: 0|trans: 0>{\@ii}%
+    \refstepcounter{step@count}%
+  }%
+  \only<.(\thestep@count)->{#2}%
+}
+
+%
+% The (optional) argument to the pause command is an absolute number
+% This command takes a relative number
+%
+
+\newcounter{pause@for}
+\newcommand\pausefor[1]{%
+\setcounter{pause@for}{\thebeamerpauses}%
+\addtocounter{pause@for}{#1}%
+\pause[\thepause@for]%
+}
+
 
 }{}  %%% End: ifClassIs{beamer}
 
