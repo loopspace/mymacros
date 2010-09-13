@@ -11,6 +11,7 @@
   \newif\ifdraft}{}
 
 \newif\ifrequire@xcolor
+\newif\ifmy@typecasting
 
 % Currently has some issues with beamer
 
@@ -247,108 +248,10 @@
 
 
 \DeclareOption{typecasting}{
-
-  \@ifpackageloaded{unicode-math}{
-    \require@xcolortrue
-
-% Mathematical highlighting
-
-    \newcount\my@colour@count
-    \def\my@pushcolour{%
-      \xglobal\colorlet{foo\the\my@colour@count}{.}%
-      \global\advance\my@colour@count by1\relax}
-    \def\my@popcolour{%
-      \global\advance\my@colour@count by-1\relax%
-      \color{foo\the\my@colour@count}}
-
-% Temporary use for right now
-    \newcommand{\pety}[2]{\my@pushcolour\color{#1}#2\my@popcolour}
-
-    \setmathfont{xits-math.otf}
-
-    \ifdraft
-    \renewcommand{\setmathfont}[2][]{}
-    \fi
-
-% This seems to be needed to 'reset' the changes
-    \setmathfont[range="20,Colour=000000]{xits-math.otf}
-
-% This declares a new "type" consisting of options to be passed to the
-% \setmathfont command (perhaps edef would be better)
-    \newcommand{\newtype}[2]{%
-      \expandafter\def\csname my@type@#1\endcsname{#2}%
-    }
-
-% This defines a "type" for a particular letter
-% The letter needs to be specified by a number (its position in the
-% unicode chart)
-
-    \newcommand{\my@type}[2]{%
-      \@ifundefined{my@type@#1}{%
-        \setmathfont[math-style=TeX,Colour=#1,range=#2]{xits-math.otf}
-      }{%
-        \edef\ty@temp{\noexpand\setmathfont[\csname                              my@type@#1\endcsname,range=#2]
-          {xits-math.otf}}%
-        \ty@temp
-      }
-    }
-
-% This defines a "type" for a specified letter, or list of letters.
-
-    \newcount\ty@char
-    \newcommand{\chartype}[2]{%
-      \@for\@ii:=#2\do{%
-        \expandafter\ty@char\expandafter=\expandafter`\@ii
-        \edef\ty@bar{\the\ty@char}%
-        \edef\ty@baz{#1}%
-        \begingroup
-        \edef\ty@temp{%
-          \endgroup
-          \noexpand\my@type
-              {\unexpanded\expandafter{\ty@baz}}%
-              {\unexpanded\expandafter{\ty@bar}}%
-        }%
-        \ty@temp
-      }%
-    }
-
-% This works for things specified by numbers
-
-    \newcommand{\numtype}[2]{%
-      \@for\@ii:=#2\do{%
-        \edef\ty@bar{\@ii}%
-        \edef\ty@baz{#1}%
-        \begingroup
-        \edef\ty@temp{%
-          \endgroup
-          \noexpand\my@type
-              {\unexpanded\expandafter{\ty@baz}}%
-              {\unexpanded\expandafter{\ty@bar}}%
-        }%
-        \ty@temp
-      }%
-    }
-  }{%
-    % If unicode-math isn't loaded everything becomes a warning
-    \myw@rning{Typing requires unicode-math.sty package}%
-    \newcommand{\newtype}[2]{%
-      \myw@rning{Typing requires unicode-math.sty package}%
-    }
-    \newcommand{\numtype}[2]{%
-      \myw@rning{Typing requires unicode-math.sty package}%
-    }
-    \newcommand{\chartype}[2]{%
-      \myw@rning{Typing requires unicode-math.sty package}%
-    }
-    \newcommand{\setmathfont}[2][]{%
-      \myw@rning{Typing requires unicode-math.sty package}%
-    }
-    \newcommand{\pety}[2]{%
-      \myw@rning{Typing requires unicode-math.sty package}%
-      #2%
-    }
-  }
+  \my@typecastingtrue
+  \require@xcolortrue
 }
+
 
 \DeclareOption{all}{
   \ExecuteOptions{chcl,diff,abbrev,bb,geom,amsthm,fig}
@@ -372,6 +275,92 @@
 \fi
 
 \useeso
+
+%
+% Typecasting
+%
+
+\ExplSyntaxOn
+\ifmy@typecasting
+\RequirePackage{unicode-math}
+
+% Mathematical highlighting
+
+\DeclareDocumentCommand \setupmathfont { O{} m } {
+  \cs_set:cpn {l_um_style#2:} {#1}
+  \um_init:
+  \csname S@\f@size\endcsname
+  \tl_set:Nn \l_um_mversion_tf {normal}
+  \DeclareMathVersion{\l_um_mversion_tf}
+  \tl_set:Nn \l_um_script_features_tl  {ScriptStyle}
+  \tl_set:Nn \l_um_sscript_features_tl {ScriptScriptStyle}
+  \tl_set:Nn \l_um_script_font_tl      {xits-math.otf}
+  \tl_set:Nn \l_um_sscript_font_tl     {xits-math.otf}
+  \keys_set:nn {unicode-math} {Colour=#2}
+  \um_fontspec_select_font:n {xits-math.otf}
+  \tl_set:Nx \um_symfont_tl {#2}
+  \DeclareSymbolFont{\um_symfont_tl}
+  {\encodingdefault}{\zf@family}{\mddefault}{\updefault}
+  \ignorespaces
+}
+
+\newcommand{\usemathfont}[2][]{%
+  \um_init:
+  \tl_set:Nx \um_usemath_opts {\use:c {l_um_style#2:},#1}
+  \keys_set:nV {unicode-math} \um_usemath_opts
+  \tl_set:Nx \um_symfont_tl {#2}%
+  \bool_if:NTF \l_um_init_bool {
+    \msg_trace:nnx {unicode-math} {default-math-font} {#2}
+    \cs_set_eq:NN \_um_sym:nnn \um_process_symbol_noparse:nnn
+    \cs_set_eq:NN \um_set_mathalphabet_char:Nnn             \um_mathmap_noparse:Nnn
+    \cs_set_eq:NN \um_remap_symbol:nnn             \um_remap_symbol_noparse:nnn
+    \cs_set_eq:NN \um_maybe_init_alphabet:n \um_init_alphabet:n
+    \cs_set_eq:NN \um_map_char_single:nn \um_map_char_noparse:nn
+    \cs_set_eq:NN \um_assign_delcode:nn         \um_assign_delcode_noparse:nn
+  }{
+    \cs_set_eq:NN \_um_sym:nnn \um_process_symbol_parse:nnn
+    \cs_set_eq:NN \um_set_mathalphabet_char:Nnn             \um_mathmap_parse:Nnn
+    \cs_set_eq:NN \um_remap_symbol:nnn \um_remap_symbol_parse:nnn
+    \cs_set_eq:NN \um_maybe_init_alphabet:n \use_none:n
+    \cs_set_eq:NN \um_map_char_single:nn \um_map_char_parse:nn
+    \cs_set_eq:NN \um_assign_delcode:nn \um_assign_delcode_parse:nn
+  }
+  \um_input_math_symbol_table:
+  \um_remap_symbols:
+  \um_setup_mathactives:
+  \um_setup_delcodes:
+  \um_setup_alphabets:
+}
+\ExplSyntaxOff
+
+\newcount\my@char
+\def\my@trim@comma#1#2\relax{#2}
+\newcommand{\chartype}[2]{%
+  \def\my@range{}%
+  \@for\my@ii:=#2\do{%
+    \expandafter\my@char\expandafter=\expandafter`\my@ii
+    \edef\my@range{\my@range,\the\my@char}%
+  }
+  \edef\my@range{\expandafter\my@trim@comma\my@range\relax}
+  \edef\my@tempa{\noexpand\usemathfont[range={\my@range}]{#1}}
+  \my@tempa}
+
+\newcommand{\numtype}[2]{%
+  \usemathfont[range={#2}]{#1}}
+
+\newcommand{\mactype}[2]{%
+  \usemathfont[range={#2}]{#1}}
+
+
+\newcommand{\pety}[2]{{\usemathfont{#1}#2}}
+
+\setmathfont{xits-math.otf}
+
+\ifdraft
+\renewcommand{\setmathfont}[2][]{}
+\fi
+\fi
+
 
 %
 % Anglicisations
