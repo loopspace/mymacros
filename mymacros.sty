@@ -142,8 +142,11 @@
  \newcommand{\restrict}{\!\!\mid}                                       % geom
  \newcommand{\conj}[1]{\overline{#1}}                                   % geom
  \newcommand{\exterior}{\Lambda}                                        % geom
- \newcommand{\T}{\ensuremath{{S^1}}\xspace}                             % geom
-
+\@ifundefined{T}{%
+ \newcommand{\T}{\ensuremath{{S^1}}\xspace}                            % geom
+}{%
+ \renewcommand{\T}{\ensuremath{{S^1}}\xspace}                            % geom
+}
 \@ifpackageloaded{amsmath}{%
 %	\DeclareMathOperator{\Det}{Det}                       % geom [amsmath]
 	\DeclareMathOperator{\gr}{Gr}                         % geom [amsmath]
@@ -352,7 +355,10 @@
   \usemathfont[range={#2}]{#1}}
 
 
-\newcommand{\pety}[2]{{\usemathfont{#1}#2}}
+\newcommand{\pety}[2]{%
+\@ifundefined{my@#1#2}%
+{\usemathfont{#1}#2}%
+{\csname my@#1#2\endcsname}}
 
 \setmathfont{xits-math.otf}
 
@@ -503,10 +509,15 @@
 }{}
 
 %
-% Font shortcuts
+% Font shortcuts, some unicode package defines lots of accent commands
+% using short names, we override them with impunity
 %
 
+\@ifundefined{m}{%
 \newcommand{\m}[1]{\ensuremath {\mathcal{#1}}\xspace}
+}{%
+\renewcommand{\m}[1]{\ensuremath {\mathcal{#1}}\xspace}
+}
 \newcommand{\mf}[1]{\ensuremath {\mathfrak{#1}}\xspace}
 
 %
