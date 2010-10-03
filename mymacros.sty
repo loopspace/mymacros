@@ -283,12 +283,12 @@
 % Typecasting
 %
 
-\ExplSyntaxOn
 \ifmy@typecasting
 \RequirePackage{unicode-math}
 
 % Mathematical highlighting
 
+\ExplSyntaxOn
 \DeclareDocumentCommand \setupmathfont { O{} m } {
   \cs_set:cpn {l_um_style#2:} {#1}
   \um_init:
@@ -334,6 +334,21 @@
   \um_setup_delcodes:
   \um_setup_alphabets:
 }
+
+
+\newcount\my@variant
+\newcount\my@variant@base
+
+\newcommand{\newvariant}[2]{%
+\edef\my@temp{#2}%
+\expandafter\my@variant\expandafter=\expandafter`\my@temp
+\my@variant@base=\the\my@variant
+\advance\my@variant@base "70E\relax
+\numtype{#1}{\the\my@variant@base}%
+\um_map_char_single:nn {\the\my@variant@base}{\the\my@variant}%
+\expandafter\edef\csname my@#1#2\endcsname{\expandafter\char\my@variant@base}%
+}
+
 \ExplSyntaxOff
 
 \newcount\my@char
@@ -358,7 +373,8 @@
 \newcommand{\pety}[2]{%
 \@ifundefined{my@#1#2}%
 {\usemathfont{#1}#2}%
-{\csname my@#1#2\endcsname}}
+{%
+\csname my@#1#2\endcsname}}
 
 \setmathfont{xits-math.otf}
 
