@@ -338,15 +338,19 @@
 
 \newcount\my@variant
 \newcount\my@variant@base
+\my@variant@base="83F
 
-\newcommand{\newvariant}[2]{%
-\edef\my@temp{#2}%
+\newcommand{\newvariant}[3][]{%
+\ifx\relax#1\relax
+\edef\my@temp{#3}%
 \expandafter\my@variant\expandafter=\expandafter`\my@temp
-\my@variant@base=\the\my@variant
-\advance\my@variant@base "70E\relax
-\numtype{#1}{\the\my@variant@base}%
+\else
+\my@variant=#1
+\fi
+\advance\my@variant@base 1\relax
+\numtype{#2}{\the\my@variant@base}%
 \um_map_char_single:nn {\the\my@variant@base}{\the\my@variant}%
-\expandafter\edef\csname my@#1#2\endcsname{\expandafter\char\my@variant@base}%
+\expandafter\edef\csname my@#2#3\endcsname{\expandafter\char\the\my@variant@base}%
 }
 
 \ExplSyntaxOff
