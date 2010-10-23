@@ -273,9 +273,12 @@
 \RequirePackage{xcolor}
 \fi
 
+\ifClassIs{beamer}{
+}{
 \ifdraft
 \RequirePackage{mydraft}
 \fi
+}
 
 \useeso
 
