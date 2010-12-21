@@ -62,6 +62,10 @@
  \the@remtrue
 }{}
 
+\ifClassIs{tac}{
+ \the@remtrue
+}{}
+
 % Beamer predefines loads of the theorem variants, best leave them
 % alone (for now)
 
@@ -447,6 +451,37 @@
     }
   }{}
 
+  \ifClassIs{tac}{
+  \let\my@tac@newtheorem\newtheorem
+  \let\my@tac@newtheoremrm\newtheoremrm
+  \def\newtheorem{%
+    \@ifstar{\my@newtheorem}{\my@newtheorem}}
+    \def\mythmstyle{notplain}
+    \def\mydefstyle{notplain}
+    \def\myrmkstyle{plain}
+    \let\my@newtheorem\my@tac@newtheorem
+  \let\my@tac@theoremstyle\theoremstyle
+  \def\theoremstyle#1{%
+    \edef\my@style@given{#1}%
+    \ifx\my@style@given\mythmstyle
+     \global\let\my@newtheorem\my@tac@newtheorem
+     \my@tac@theoremstyle{notplain}%
+    \else
+     \ifx\my@style@given\mydefstyle
+      \global\let\my@newtheorem\my@tac@newtheorem
+     \my@tac@theoremstyle{notplain}%
+     \else
+     \ifx\my@style@given\myrmkstyle
+      \global\let\my@newtheorem\my@tac@newtheoremrm
+     \my@tac@theoremstyle{plain}%
+     \fi
+    \fi
+   \fi
+    }
+  % TAC is inconsistent with other proof environments
+  \def\pr@@f[#1]{\subsubsection*{{\textsc{#1}}}}
+  }{}
+
 \@ifundefined{theoremstyle}{%
   \newcommand{\theoremstyle}[1]{}}{}
 
@@ -463,10 +498,13 @@
 
 \ifClassIs{lms}{}{
 % Starred versions are automatic under LMS
+  \ifClassIs{tac}{}{
+% Starred versions are not caterred for under TAC
     \providetheorem*{theorem*}{Theorem}
     \providetheorem*{lemma*}{Lemma}
     \providetheorem*{proposition*}{Proposition}
     \providetheorem*{corollary*}{Corollary}
+  }
 }
 
 \theoremstyle{\mydefstyle}
@@ -476,9 +514,12 @@
     \providetheorem{axiom}[theorem]{Axiom}
 
 \ifClassIs{lms}{}{
+  \ifClassIs{tac}{}{
+% Starred versions are not caterred for under TAC
     \providetheorem*{defn*}{Definition}
     \providetheorem*{conjecture*}{Conjecture}
     \providetheorem*{axiom*}{Axiom}
+  }
 }
 
     \theoremstyle{\myrmkstyle}
@@ -488,9 +529,12 @@
     \providetheorem{remark}[theorem]{Remark}
     \providetheorem{question}[theorem]{Question}
 
+\ifClassIs{tac}{}{
+% TAC makes theorems etc use same numbering as subsections
   \renewcommand{\thetheorem}{\thesection.\arabic{theorem}}
   \renewcommand{\theconjecture}{\Alph{conjecture}}
   \renewcommand{\thethm}{\Alph{thm}}
+}
 \fi
 
 %
@@ -515,12 +559,23 @@
     \let\qedhere\@empty
     \newcommand{\noproof}{{\hspace*{\fill}\proofbox}}
   }{
+    \ifClassIs{tac}{
+      \let\qed\endproofbox
+      \let\tac@endproof\endproof
+      \let\noproof\endproof
+      \def\tac@endnoproof{%
+        \global\let\endproof\tac@endproof}
+      \newcommand{\qedhere}{%
+        \endproof
+        \global\let\endproof\tac@endnoproof}
+    }{
     \newcommand{\qed}{\leavevmode
       \hbox to.77778em{%
         \hfil\vrule
         \vbox to.675em{\hrule width.6em\vfil\hrule}%
         \vrule\hfil}}%
     \newcommand{\noproof}{{\hspace*{\fill}\qed}}
+      }
   }
 \fi
 }{}
