@@ -648,16 +648,6 @@
 
 \@ifpackageloaded{amsmath}{%
   \renewcommand{\above}[2]{\genfrac{}{}{0pt}{}{#1}{#2}}           % [!amsmath!]
-
-%
-% unicode-math doesn't like stretchy bars for some reason
-%
-\@ifpackageloaded{unicode-math}{% 
-  \newcommand{\sabs}[1]{\lvert #1 \rvert}                         % [!amsmath!]
-\let\abs\sabs
-\let\dabs\sabs
-\newcommand{\norm}[1][\cdot]{\lVert #1 \rVert}%
-}{
   \newcommand{\abs}[1]{%                                          % [!amsmath!]
     {\if@display
        \left\lvert #1 \right\rvert
@@ -667,7 +657,7 @@
   \newcommand{\sabs}[1]{\lvert #1 \rvert}                         % [!amsmath!]
   \newcommand{\dabs}[1]{\left\lvert #1 \right\rvert}              % [!amsmath!]
   \newcommand{\norm}[1][\cdot]{\left\lVert #1 \right\rVert}       % [!amsmath!]
-}
+
   \newcommand{\ip}[2]{\langle #1, #2 \rangle}                     % [!amsmath!]
 }{}
 
