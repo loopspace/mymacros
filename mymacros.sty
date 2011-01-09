@@ -777,9 +777,17 @@
     }{%
   \end{math}}}{\end{altenv}}
   
+% For after a list
 \newcommand{\itpause}{%
 \addtocounter{beamerpauses}{-1}
 \pause
+}
+
+% For within a list
+\newcommand{\iitpause}{%
+\addtocounter{beamerpauses}{-1}
+\pause
+\addtocounter{beamerpauses}{1}
 }
 
 %
