@@ -12,6 +12,13 @@
 
 \newif\ifrequire@xcolor
 \newif\ifmy@typecasting
+\newif\ifmy@typecastingcolour
+
+\ifdraft
+\my@typecastingcolourfalse
+\else
+\my@typecastingcolourtrue
+\fi
 
 % Currently has some issues with beamer
 
@@ -259,6 +266,9 @@
   \require@xcolortrue
 }
 
+\DeclareOption{typecastingnocolour}{
+  \my@typecastingcolourfalse
+}
 
 \DeclareOption{all}{
   \ExecuteOptions{chcl,diff,abbrev,bb,geom,amsthm,fig}
@@ -389,7 +399,8 @@
 
 \setmathfont{xits-math.otf}
 
-\ifdraft
+\ifmy@typecastingcolour
+\else
 \renewcommand{\setmathfont}[2][]{}
 \renewcommand{\setupmathfont}[2][]{}
 \renewcommand{\usemathfont}[2][]{}
