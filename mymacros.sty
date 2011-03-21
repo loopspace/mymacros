@@ -370,7 +370,7 @@
 \advance\my@variant@base 1\relax
 \numtype{#2}{\the\my@variant@base}%
 \um_map_char_single:nn {\the\my@variant@base}{\the\my@variant}%
-\expandafter\edef\csname my@#2#3\endcsname{\expandafter\char\the\my@variant@base}%
+\expandafter\edef\csname my@#2@\string#3\endcsname{\expandafter\char\the\my@variant@base}%
 }
 
 \ExplSyntaxOff
@@ -395,10 +395,10 @@
 
 
 \newcommand{\pety}[2]{%
-\@ifundefined{my@#1#2}%
+\@ifundefined{my@#1@\string#2}%
 {{\usemathfont{#1}#2}}%
 {%
-\csname my@#1#2\endcsname}}
+\csname my@#1@\string#2\endcsname}}
 
 \setmathfont{xits-math.otf}
 
