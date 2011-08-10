@@ -583,11 +583,12 @@
         \endproof
         \global\let\endproof\tac@endnoproof}
     }{
+      \@ifundefined{qed}{
     \newcommand{\qed}{\leavevmode
       \hbox to.77778em{%
         \hfil\vrule
         \vbox to.675em{\hrule width.6em\vfil\hrule}%
-        \vrule\hfil}}%
+        \vrule\hfil}}}{}%
     \newcommand{\noproof}{{\hspace*{\fill}\qed}}
       }
   }
