@@ -159,22 +159,42 @@
  \renewcommand{\T}{\ensuremath{{S^1}}\xspace}                            % geom
 }
 \@ifpackageloaded{amsmath}{%
-%	\DeclareMathOperator{\Det}{Det}                       % geom [amsmath]
-	\DeclareMathOperator{\gr}{Gr}                         % geom [amsmath]
-	\DeclareMathOperator{\gl}{Gl}                         % geom [amsmath]
-	\DeclareMathOperator{\spl}{Sl}                        % geom [amsmath]
-	\DeclareMathOperator{\un}{U}                          % geom [amsmath]
-	\DeclareMathOperator{\ind}{Index}                     % geom [amsmath]
-%	\DeclareMathOperator{\codim}{codim}                   % geom [amsmath]
-	\DeclareMathOperator{\coker}{coker}                   % geom [amsmath]
-	\DeclareMathOperator{\im}{im}                         % geom [amsmath]
-%	\DeclareMathOperator{\supp}{supp}                     % geom [amsmath]
-	\DeclareMathOperator{\spin}{Spin}                     % geom [amsmath]
-	\DeclareMathOperator{\tr}{Tr}                         % geom [amsmath]
-	\DeclareMathOperator{\End}{End}                       % geom [amsmath]
-%	\DeclareMathOperator{\sym}{Sym}                       % geom [amsmath]
-	\DeclareMathOperator{\map}{Map}                       % geom [amsmath]
-	\DeclareMathOperator{\dv}{Div}                        % geom [amsmath]
+    \gdef\@notdefinablenoerr{%
+      \PackageWarning{mymacros}{Command \@backslashchar\reserved@a\space already defined, not attempting to redefine it.}}
+
+    \long\def\@ifdefinablenoerr #1#2{%
+      \edef\reserved@a{\expandafter\@gobble\string #1}%
+     \@ifundefined\reserved@a
+         {\edef\reserved@b{\expandafter\@carcube \reserved@a xxx\@nil}%
+          \ifx \reserved@b\@qend \@notdefinablenoerr\else
+            \ifx \reserved@a\@qrelax \@notdefinablenoerr\else
+              #2%
+            \fi
+          \fi}%
+         \@notdefinablenoerr}
+    \newcommand{\ProvideMathOperator}{%
+      \@ifstar{\@provmathop m}{\@provmathop o}}
+    \long\def\@provmathop#1#2#3{%
+      \@ifdefinablenoerr{#2}{%
+        \DeclareRobustCommand{#2}{\qopname\newmcodes@#1{#3}}}}
+    \@onlypreamble\ProvideMathOperator
+    \@onlypreamble\@provmathop
+%	\ProvideMathOperator{\Det}{Det}                       % geom [amsmath]
+	\ProvideMathOperator{\gr}{Gr}                         % geom [amsmath]
+	\ProvideMathOperator{\gl}{Gl}                         % geom [amsmath]
+	\ProvideMathOperator{\spl}{Sl}                        % geom [amsmath]
+	\ProvideMathOperator{\un}{U}                          % geom [amsmath]
+	\ProvideMathOperator{\ind}{Index}                     % geom [amsmath]
+%	\ProvideMathOperator{\codim}{codim}                   % geom [amsmath]
+	\ProvideMathOperator{\coker}{coker}                   % geom [amsmath]
+	\ProvideMathOperator{\im}{im}                         % geom [amsmath]
+%	\ProvideMathOperator{\supp}{supp}                     % geom [amsmath]
+	\ProvideMathOperator{\spin}{Spin}                     % geom [amsmath]
+	\ProvideMathOperator{\tr}{Tr}                         % geom [amsmath]
+	\ProvideMathOperator{\End}{End}                       % geom [amsmath]
+%	\ProvideMathOperator{\sym}{Sym}                       % geom [amsmath]
+	\ProvideMathOperator{\map}{Map}                       % geom [amsmath]
+	\ProvideMathOperator{\dv}{Div}                        % geom [amsmath]
 }{}
 }
 
