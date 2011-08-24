@@ -368,13 +368,87 @@
     \cs_set_eq:NN \um_map_char_single:nn \um_map_char_parse:nn
     \cs_set_eq:NN \um_assign_delcode:nn \um_assign_delcode_parse:nn
   }
-  \um_input_math_symbol_table:
+  \um_input_some_math_symbols
   \um_remap_symbols:
   \um_setup_mathactives:
   \um_setup_delcodes:
-  \um_setup_alphabets:
+  \um_setup_some_alphabets:n {#2}
 }
 
+\cs_new:Npn \um_get_style:n #1 {%
+\edef\@temp{\noexpand\um_get_maths_style stuff,#1,math-style=TeX,\relax}%
+  \@temp
+  \expandafter\let\expandafter\g_um_default_mathalph_seq\csname um_default_\um_this_style \endcsname
+}
+
+\cs_new:Npn \um_get_maths_style #1,math-style=#2,#3\relax{%
+  \def\um_this_style{#2}}
+
+\def\um_default_TeX{\seq_item:n {{\mathit }{latin,Latin,greek,Greek,num,misc}{\mathit }}}
+\def\um_default_upright{\seq_item:n {{\mathup }{latin,Latin,greek,Greek,num,misc}{\mathup }}}
+
+
+\cs_new:Npn \um_setup_some_alphabets:n #1 {
+  \seq_if_empty:NTF \l_um_mathalph_seq {
+    \um_trace:n {setup-implicit}
+    \um_get_style:n{\use:c{l_um_style#1:}}
+    \seq_set_eq:NN \l_um_mathalph_seq \g_um_default_mathalph_seq
+    \bool_set_true:N \l_um_implicit_alph_bool
+    \um_maybe_init_alphabet:n  {sf}
+    \um_maybe_init_alphabet:n  {bf}
+    \um_maybe_init_alphabet:n  {bfsf}
+  }
+  {
+    \um_trace:n {setup-explicit}
+    \bool_set_false:N \l_um_implicit_alph_bool
+    \cs_set_eq:NN \um_set_mathalphabet_char:Nnn \um_mathmap_noparse:Nnn
+    \cs_set_eq:NN \um_map_char_single:nn \um_map_char_noparse:nn
+  }
+  \seq_map_inline:Nn \l_um_mathalph_seq {
+    \tl_set:No \l_um_tmpa_tl { \use_i:nnn   ##1 }
+    \tl_set:No \l_um_tmpb_tl { \use_ii:nnn  ##1 }
+    \tl_set:No \l_um_remap_style_tl { \use_iii:nnn ##1 }
+    \tl_set:Nx \l_um_remap_style_tl {
+      \exp_after:wN \exp_after:wN \exp_after:wN \use_none:nnnnn
+      \exp_after:wN \token_to_str:N \l_um_remap_style_tl
+    }
+    \tl_if_empty:NT \l_um_tmpb_tl {
+      \cs_set_eq:NN \um_maybe_init_alphabet:n \um_init_alphabet:n
+      \tl_set:Nn \l_um_tmpb_tl { latin,Latin,greek,Greek,num,misc }
+    }
+    \um_setup_math_alphabet:VVV
+      \l_um_tmpa_tl \l_um_tmpb_tl \l_um_remap_style_tl
+  }
+  \um_warn_missing_alphabets:
+}
+
+
+\def\um_input_some_math_symbols#1{%
+  \ifx\l_um_char_range_seq\relax
+  \um_input_math_symbol_table:
+  \else
+  \let\seq_item:n=\call_item
+  \l_um_char_range_seq
+  \fi
+}
+
+\def\call_item#1{%
+  \edef\my_arg{#1}%
+  \edef\my_range{\test_range#1-\relax}%
+  \ifx\my_arg\my_range
+  \csname math_font_\string#1\endcsname
+  \else
+  \fi
+}
+
+\def\test_range#1-#2\relax{#1}
+
+\begingroup
+\def\_um_sym:nnn#1#2#3{%
+  \expandafter\gdef\csname math_font_#1\endcsname{\_um_sym:nnn{#1}{#2}{#3}}%
+  \expandafter\gdef\csname math_font_\string#2\endcsname{\_um_sym:nnn{#1}{#2}{#3}}}
+\g_um_mathtable_tl
+\endgroup
 
 \newcount\my@variant
 \newcount\my@variant@base
