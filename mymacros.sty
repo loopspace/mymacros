@@ -347,7 +347,7 @@
   \ignorespaces
 }
 
-\newcommand{\usemathfont}[2][]{%
+\DeclareDocumentCommand \usemathfont { O{} m } {
   \um_init:
   \tl_set:Nx \um_usemath_opts {\use:c {l_um_style#2:},#1}
   \keys_set:nV {unicode-math} \um_usemath_opts
@@ -368,14 +368,14 @@
     \cs_set_eq:NN \um_map_char_single:nn \um_map_char_parse:nn
     \cs_set_eq:NN \um_assign_delcode:nn \um_assign_delcode_parse:nn
   }
-  \um_input_some_math_symbols
+  \um_input_some_math_symbols:
   \um_remap_symbols:
   \um_setup_mathactives:
   \um_setup_delcodes:
   \um_setup_some_alphabets:n {#2}
 }
 
-\cs_new:Npn \um_get_style:n #1 {%
+\cs_new:Nn \um_get_style:n {%
 \edef\@temp{\noexpand\um_get_maths_style stuff,#1,math-style=TeX,\relax}%
   \@temp
   \expandafter\let\expandafter\g_um_default_mathalph_seq\csname um_default_\um_this_style \endcsname
@@ -384,7 +384,8 @@
 \cs_new:Npn \um_get_maths_style #1,math-style=#2,#3\relax{%
   \def\um_this_style{#2}}
 
-\def\um_default_TeX{\seq_item:n {{\mathit }{latin,Latin,greek,Greek,num,misc}{\mathit }}}
+\tl_new:N \um_default_TeX {
+  \seq_item:n {{\mathit }{latin,Latin,greek,Greek,num,misc}{\mathit }}}
 \def\um_default_upright{\seq_item:n {{\mathup }{latin,Latin,greek,Greek,num,misc}{\mathup }}}
 
 
@@ -423,30 +424,45 @@
 }
 
 
-\def\um_input_some_math_symbols#1{%
-  \ifx\l_um_char_range_seq\relax
-  \um_input_math_symbol_table:
-  \else
-  \let\seq_item:n=\call_item
+\cs_new:Nn \um_input_some_math_symbols: {
+  \tl_if_empty:NTF \l_um_char_range_seq {
+    \um_input_math_symbol_table:
+  }{
+  \cs_set_eq:NN \seq_item:n \call_item:n
   \l_um_char_range_seq
-  \fi
+  }
 }
 
-\def\call_item#1{%
-  \edef\my_arg{#1}%
-  \edef\my_range{\test_range#1-\relax}%
-  \ifx\my_arg\my_range
-  \csname math_font_\string#1\endcsname
-  \else
-  \fi
+\cs_new:Nn \call_item:n {%
+  % Need to test for range syntax here
+  % Test if #1 is a command or not
+  \tl_if_single_token:nTF {#1} {
+    % Single token, is a command?
+    \tl_if_head_eq_catcode:nNTF {#1} \relax {
+      % Is a command
+      \use:c {_um_define_char_\cs_to_str:N #1:}
+    }{
+      % Is not a command
+      \use:c {_um_define_char_#1:}
+    }
+  }{
+    % Is more than one token
+    \use:c {_um_define_char_#1:}
+  }
 }
 
-\def\test_range#1-#2\relax{#1}
+%\def\test_range#1-#2\relax{#1}
 
 \begingroup
-\def\_um_sym:nnn#1#2#3{%
-  \expandafter\gdef\csname math_font_#1\endcsname{\_um_sym:nnn{#1}{#2}{#3}}%
-  \expandafter\gdef\csname math_font_\string#2\endcsname{\_um_sym:nnn{#1}{#2}{#3}}}
+\cs_set:Nn \_um_sym:nnn{%
+  \cs_if_free:cTF {_um_define_char_#1:} {
+    \cs_new:cn {_um_define_char_#1:}{\_um_sym:nnn{#1}{#2}{#3}}
+  }{}
+  \cs_if_free:cTF {_um_define_char_\cs_to_str:N #2:} {
+    \cs_new:cn {_um_define_char_\cs_to_str:N #2:}{\_um_sym:nnn{#1}{#2}{#3}}
+  }{}
+}
+
 \g_um_mathtable_tl
 \endgroup
 
