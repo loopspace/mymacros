@@ -329,8 +329,8 @@
 % Mathematical highlighting
 
 \ExplSyntaxOn
-\DeclareDocumentCommand \setupmathfont { O{} m } {
-  \cs_set:cpn {l_um_style#2:} {#1}
+\DeclareDocumentCommand \setupmathfont { O{TeX} O{} m } {
+  \cs_set:cpn {l_um_style#3:} {math-style=#1,#2}
   \um_init:
   \csname S@\f@size\endcsname
   \tl_set:Nn \l_um_mversion_tf {normal}
@@ -339,15 +339,19 @@
   \tl_set:Nn \l_um_sscript_features_tl {ScriptScriptStyle}
   \tl_set:Nn \l_um_script_font_tl      {xits-math.otf}
   \tl_set:Nn \l_um_sscript_font_tl     {xits-math.otf}
-  \keys_set:nn {unicode-math} {Colour=#2}
+  \keys_set:nn {unicode-math} {Colour=#3}
   \um_fontspec_select_font:n {xits-math.otf}
-  \tl_set:Nx \um_symfont_tl {#2}
+  \tl_set:Nx \um_symfont_tl {#3}
   \DeclareSymbolFont{\um_symfont_tl}
   {\encodingdefault}{\zf@family}{\mddefault}{\updefault}
   \ignorespaces
 }
 
 \DeclareDocumentCommand \usemathfont { O{} m } {
+  \mymacros_use_math_font:nn {#1}{#2}
+}
+
+\cs_new:Nn \mymacros_use_math_font:nn {
   \um_init:
   \tl_set:Nx \um_usemath_opts {\use:c {l_um_style#2:},#1}
   \keys_set:nV {unicode-math} \um_usemath_opts
@@ -375,24 +379,29 @@
   \um_setup_some_alphabets:n {#2}
 }
 
-\cs_new:Nn \um_get_style:n {%
-\edef\@temp{\noexpand\um_get_maths_style stuff,#1,math-style=TeX,\relax}%
-  \@temp
-  \expandafter\let\expandafter\g_um_default_mathalph_seq\csname um_default_\um_this_style \endcsname
+\cs_generate_variant:Nn \mymacros_use_math_font:nn { Vn }
+
+\cs_new:Nn \mymacros_use_math_font:n {
+  \mymacros_use_math_font:nn {}{#1}
 }
 
-\cs_new:Npn \um_get_maths_style #1,math-style=#2,#3\relax{%
-  \def\um_this_style{#2}}
+\keys_define:nn { mymacros_um }
+{
+  math-style .code:n = {
+    \cs_set_eq:Nc \g_um_default_mathalph_seq {um_default_#1}
+  }
+}
 
-\tl_new:N \um_default_TeX {
-  \seq_item:n {{\mathit }{latin,Latin,greek,Greek,num,misc}{\mathit }}}
-\def\um_default_upright{\seq_item:n {{\mathup }{latin,Latin,greek,Greek,num,misc}{\mathup }}}
+\seq_new:N \um_default_TeX
+\seq_new:N \um_default_upright
+\seq_put_left:Nn \um_default_TeX {{\mathit }{latin,Latin,greek,Greek,num,misc}{\mathit }}
+\seq_put_left:Nn \um_default_upright {{\mathup }{latin,Latin,greek,Greek,num,misc}{\mathup }}
 
 
 \cs_new:Npn \um_setup_some_alphabets:n #1 {
   \seq_if_empty:NTF \l_um_mathalph_seq {
     \um_trace:n {setup-implicit}
-    \um_get_style:n{\use:c{l_um_style#1:}}
+    \keys_set:nv { mymacros_um } { l_um_style#1: }
     \seq_set_eq:NN \l_um_mathalph_seq \g_um_default_mathalph_seq
     \bool_set_true:N \l_um_implicit_alph_bool
     \um_maybe_init_alphabet:n  {sf}
@@ -434,90 +443,83 @@
 }
 
 \cs_new:Nn \call_item:n {%
-  % Need to test for range syntax here
-  % Test if #1 is a command or not
-  \tl_if_single_token:nTF {#1} {
-    % Single token, is a command?
-    \tl_if_head_eq_catcode:nNTF {#1} \relax {
-      % Is a command
-      \use:c {_um_define_char_\cs_to_str:N #1:}
-    }{
-      % Is not a command
-      \use:c {_um_define_char_#1:}
-    }
-  }{
-    % Is more than one token
-    \use:c {_um_define_char_#1:}
-  }
+  \use:c {_um_define_char_\tl_to_str:n {#1}:}
 }
 
 %\def\test_range#1-#2\relax{#1}
 
-\begingroup
+\group_begin:
 \cs_set:Nn \_um_sym:nnn{%
   \cs_if_free:cTF {_um_define_char_#1:} {
     \cs_new:cn {_um_define_char_#1:}{\_um_sym:nnn{#1}{#2}{#3}}
   }{}
-  \cs_if_free:cTF {_um_define_char_\cs_to_str:N #2:} {
-    \cs_new:cn {_um_define_char_\cs_to_str:N #2:}{\_um_sym:nnn{#1}{#2}{#3}}
+  \cs_if_free:cTF {_um_define_char_\tl_to_str:n {#2}:} {
+    \cs_new:cn {_um_define_char_\tl_to_str:n {#2}:}{\_um_sym:nnn{#1}{#2}{#3}}
   }{}
 }
 
 \g_um_mathtable_tl
-\endgroup
+\group_end:
 
-\newcount\my@variant
-\newcount\my@variant@base
-\my@variant@base="83F
+\int_new:N \g_mymacros_um_variant
+\int_set:Nn \g_mymacros_um_variant {\int_from_hexadecimal:n {83F}}
+\int_new:N \l_mymacros_um_newvariant
 
-\newcommand{\newvariant}[3][]{%
-\ifx\relax#1\relax
-\edef\my@temp{#3}%
-\expandafter\my@variant\expandafter=\expandafter`\my@temp
-\else
-\my@variant=#1
-\fi
-\advance\my@variant@base 1\relax
-\numtype{#2}{\the\my@variant@base}%
-\um_map_char_single:nn {\the\my@variant@base}{\the\my@variant}%
-\expandafter\edef\csname my@#2@\string#3\endcsname{\expandafter\char\the\my@variant@base}%
+\DeclareDocumentCommand \newvariant { o m m } {
+  \IfNoValueTF {#1}
+  {
+    \int_set:Nn \l_mymacros_um_newvariant {`#3}
+  }
+  {
+    \int_set:Nn \l_mymacros_um_newvariant {#1}
+  }
+  \int_gincr:N \g_mymacros_um_variant
+  \numtype{#2}{\int_use:N \g_mymacros_um_variant}
+  \um_map_char_single:nn {\int_use:N \g_mymacros_um_variant}
+ {\int_use:N \l_mymacros_um_newvariant}
+  \cs_set:cx {mymacros_um_char_#2_\tl_to_str:n {#3}:} {\char \int_use:N \g_mymacros_um_variant}
 }
 
-\ExplSyntaxOff
 
-\newcount\my@char
-\def\my@trim@comma#1#2\relax{#2}
-\newcommand{\chartype}[2]{%
-  \def\my@range{}%
-  \@for\my@ii:=#2\do{%
-    \expandafter\my@char\expandafter=\expandafter`\my@ii
-    \edef\my@range{\my@range,\the\my@char}%
+\tl_new:N \l_mymacros_um_range_tl
+\DeclareDocumentCommand \chartype { m m } {
+  \clist_clear_new:N \l_mymacros_um_range_clist
+  \clist_map_inline:nn {#2} {\clist_put_left:Nn \l_mymacros_um_range_clist {`##1}}
+  \tl_set:Nx \l_mymacros_um_range_tl {range={\clist_use:N \l_mymacros_um_range_clist}}
+  \mymacros_use_math_font:Vn \l_mymacros_um_range_tl {#1}
+}
+
+\DeclareDocumentCommand \numtype { m m }{
+  \mymacros_use_math_font:nn {range={#2}}{#1}
+}
+
+\DeclareDocumentCommand \mactype { m m }{
+  \mymacros_use_math_font:nn {range={#2}}{#1}
+}
+
+\DeclareDocumentCommand \pety { m m }{
+  \cs_if_exist:cTF {mymacros_um_char_#1_\tl_to_str:n {#2}:}
+  {
+    {\mymacros_use_math_font:n {#1}#2}
+  }{
+    \use:c {mymacros_um_char_#1_\tl_to_str:n {#2}:}
   }
-  \edef\my@range{\expandafter\my@trim@comma\my@range\relax}
-  \edef\my@tempa{\noexpand\usemathfont[range={\my@range}]{#1}}
-  \my@tempa}
-
-\newcommand{\numtype}[2]{%
-  \usemathfont[range={#2}]{#1}}
-
-\newcommand{\mactype}[2]{%
-  \usemathfont[range={#2}]{#1}}
-
-
-\newcommand{\pety}[2]{%
-\@ifundefined{my@#1@\string#2}%
-{{\usemathfont{#1}#2}}%
-{%
-\csname my@#1@\string#2\endcsname}}
+}
 
 \setmathfont{xits-math.otf}
 
 \ifmy@typecastingcolour
 \else
-\renewcommand{\setmathfont}[2][]{}
-\renewcommand{\setupmathfont}[2][]{}
-\renewcommand{\usemathfont}[2][]{}
+\RenewDocumentCommand \setmathfont { o m } {}
+\RenewDocumentCommand \setupmathfont { o m } {}
+\RenewDocumentCommand \usemathfont { o m } {}
+\RenewDocumentCommand \chartype { m m } {}
+\RenewDocumentCommand \numtype { m m } {}
+\RenewDocumentCommand \mactype { m m } {}
+\RenewDocumentCommand \pety { m m }{#2}
+\RenewDocumentCommand \newvariant { o m m }{}
 \fi
+\ExplSyntaxOff
 \fi
 
 
