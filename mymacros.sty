@@ -500,13 +500,16 @@
 \DeclareDocumentCommand \pety { m m }{
   \cs_if_exist:cTF {mymacros_um_char_#1_\tl_to_str:n {#2}:}
   {
-    {\mymacros_use_math_font:n {#1}#2}
-  }{
     \use:c {mymacros_um_char_#1_\tl_to_str:n {#2}:}
+  }{
+    {\mymacros_use_math_font:n {#1}#2\mymacros_use_math_font:n {normal}}
   }
 }
 
 \setmathfont{xits-math.otf}
+
+\colorlet{normal}{black}
+\setupmathfont{normal}
 
 \ifmy@typecastingcolour
 \else
