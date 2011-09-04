@@ -4,7 +4,7 @@
 %\RequirePackage{home}
 
 \@ifundefined{ifClassIs}{%
-  \newcommand{\ifClassIs}[2]{}
+  \let\ifClassIs=\@ifclassloaded
 }{}
 
 \@ifundefined{drafttrue}{%
@@ -792,6 +792,19 @@
 }{}
 
 
+%
+% If we're using the internet class
+%
+
+\ifClassIs{internet}{%
+  \imode<instiki>{%
+    \newcommand{\lvert}{|}
+    \newcommand{\rvert}{|}
+    \newcommand{\lVert}{\|}
+    \newcommand{\rVert}{\|}
+    \newcommand{\norm}[1][\cdot]{\left\lVert #1 \right\rVert}
+  }
+}{}
 
 %
 % If we use the fancyhdr package
