@@ -802,6 +802,7 @@
 \cs_if_exist:NF \if@display
 {
   \newif\if@display
+  \everydisplay\expandafter{\the\everydisplay \@displaytrue}
 }
 
 \cs_if_exist:NT \lvert
