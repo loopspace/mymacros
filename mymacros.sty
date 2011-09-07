@@ -1,4 +1,5 @@
 \ProvidesPackage{mymacros}
+\RequirePackage{xparse}
 \RequirePackage{xspace}
 \RequirePackage{providetheorem}
 %\RequirePackage{home}
@@ -110,6 +111,19 @@
 \DeclareOption{track}{
   \cmdtracktrue
 }
+
+%
+% If we're using the internet class
+%
+
+\ifClassIs{internet}{%
+  \imode<instiki>{%
+    \newcommand{\lvert}{|}
+    \newcommand{\rvert}{|}
+    \newcommand{\lVert}{\|}
+    \newcommand{\rVert}{\|}
+  }
+}{}
 
 % Dealing with differential operators
 
@@ -776,35 +790,69 @@
 % These with only amsmath
 %
 
-\@ifpackageloaded{amsmath}{%
-  \renewcommand{\above}[2]{\genfrac{}{}{0pt}{}{#1}{#2}}           % [!amsmath!]
-  \newcommand{\abs}[1]{%                                          % [!amsmath!]
-    {\if@display
-       \left\lvert #1 \right\rvert
-     \else
-       \lvert #1 \rvert
-     \fi}}
-  \newcommand{\sabs}[1]{\lvert #1 \rvert}                         % [!amsmath!]
-  \newcommand{\dabs}[1]{\left\lvert #1 \right\rvert}              % [!amsmath!]
-  \newcommand{\norm}[1][\cdot]{\left\lVert #1 \right\rVert}       % [!amsmath!]
+\ExplSyntaxOn
 
-  \newcommand{\ip}[2]{\langle #1, #2 \rangle}                     % [!amsmath!]
-}{}
-
-
-%
-% If we're using the internet class
-%
-
-\ifClassIs{internet}{%
-  \imode<instiki>{%
-    \newcommand{\lvert}{|}
-    \newcommand{\rvert}{|}
-    \newcommand{\lVert}{\|}
-    \newcommand{\rVert}{\|}
-    \newcommand{\norm}[1][\cdot]{\left\lVert #1 \right\rVert}
+\cs_if_exist:NT \genfrac
+{
+  \RenewDocumentCommand \above { m m } {
+    \genfrac{}{}{0pt}{}{#1}{#2}
   }
-}{}
+}
+
+\cs_if_exist:NF \if@display
+{
+  \newif\if@display
+}
+
+\cs_if_exist:NT \lvert
+{
+  \NewDocumentCommand \abs { m } {
+    \if@display
+    \left\lvert #1 \right\rvert
+    \else
+    \lvert #1 \rvert
+    \fi
+  }
+
+  \NewDocumentCommand \sabs { m } {
+    \lvert #1 \rvert
+  }
+
+  \NewDocumentCommand \dabs { m } {
+    \left\lvert #1 \right\rvert
+  }
+}
+
+\cs_if_exist:NT \lVert
+{
+  \NewDocumentCommand \norm { O{\cdot} } {
+    \left\lVert #1 \right\rVert
+  }
+}
+
+\cs_if_exist:NT \langle
+{
+  \NewDocumentCommand \ip { m m } {
+    \langle #1, #2 \rangle
+  }
+}
+
+\ExplSyntaxOff
+
+%\@ifpackageloaded{amsmath}{%
+%  \renewcommand{\above}[2]{\genfrac{}{}{0pt}{}{#1}{#2}}           % [!amsmath!]
+%  \newcommand{\abs}[1]{%                                          % [!amsmath!]
+%    {\if@display
+%       \left\lvert #1 \right\rvert
+%     \else
+%       \lvert #1 \rvert
+%     \fi}}
+%  \newcommand{\sabs}[1]{\lvert #1 \rvert}                         % [!amsmath!]
+%  \newcommand{\dabs}[1]{\left\lvert #1 \right\rvert}              % [!amsmath!]
+%  \newcommand{\norm}[1][\cdot]{\left\lVert #1 \right\rVert}       % [!amsmath!]
+
+%  \newcommand{\ip}[2]{\langle #1, #2 \rangle}                     % [!amsmath!]
+%}{}
 
 %
 % If we use the fancyhdr package
