@@ -112,19 +112,6 @@
   \cmdtracktrue
 }
 
-%
-% If we're using the internet class
-%
-
-\ifClassIs{internet}{%
-  \imode<text>{%
-    \newcommand{\lvert}{|}
-    \newcommand{\rvert}{|}
-    \newcommand{\lVert}{\|}
-    \newcommand{\rVert}{\|}
-  }
-}{}
-
 % Dealing with differential operators
 
 \DeclareOption{diff}{
@@ -838,7 +825,45 @@
   }
 }
 
+%
+% If we're using the internet class
+%
+
+\ifClassIs{internet}{%
+  \imode<text>{%
+
+    \NewDocumentCommand \lvert {} {|}
+    \NewDocumentCommand \rvert {} {|}
+    \NewDocumentCommand \lVert {} {\|}
+    \NewDocumentCommand \rVert {} {\|}
+
+  \NewDocumentCommand \abs { m } {
+    \if@display
+    \left\lvert #1 \right\rvert
+    \else
+    \lb\lvert #1 \rvert\rb
+    \fi
+  }
+
+  \NewDocumentCommand \sabs { m } {
+    \lb\lvert #1 \rvert\rb
+  }
+
+  \NewDocumentCommand \dabs { m } {
+    \left\lvert #1 \right\rvert
+  }
+
+  \NewDocumentCommand \norm { O{\cdot} } {
+    \left\lVert #1 \right\rVert
+  }
+
+}
+}{}
+
+
 \ExplSyntaxOff
+
+
 
 %\@ifpackageloaded{amsmath}{%
 %  \renewcommand{\above}[2]{\genfrac{}{}{0pt}{}{#1}{#2}}           % [!amsmath!]
