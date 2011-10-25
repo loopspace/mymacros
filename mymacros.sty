@@ -332,21 +332,30 @@
 \ExplSyntaxOn
 \DeclareDocumentCommand \setupmathfont { O{TeX} O{} m } {
   \cs_set:cpn {l_um_style#3:} {math-style=#1,#2}
+  \tl_set:Nn \l_um_fontname_tl {xits-math.otf}
   \um_init:
+  \tl_set:Nn \um_symfont_tl {#3}
+  \cs_if_exist:cF { S@ \f@size } { \calculate@math@sizes }
   \csname S@\f@size\endcsname
-  \tl_set:Nn \l_um_mversion_tf {normal}
-  \DeclareMathVersion{\l_um_mversion_tf}
-  \tl_set:Nn \l_um_script_features_tl  {ScriptStyle}
-  \tl_set:Nn \l_um_sscript_features_tl {ScriptScriptStyle}
-  \tl_set:Nn \l_um_script_font_tl      {xits-math.otf}
-  \tl_set:Nn \l_um_sscript_font_tl     {xits-math.otf}
-  \keys_set:nn {unicode-math} {Colour=#3}
-  \um_fontspec_select_font:n {xits-math.otf}
-  \tl_set:Nx \um_symfont_tl {#3}
-  \DeclareSymbolFont{\um_symfont_tl}
-  {\encodingdefault}{\zf@family}{\mddefault}{\updefault}
+  \keys_set_known:nnN {unicode-math} {math-style=#1,#2,Colour=#3} \l_um_unknown_keys_clist
+  \bool_if:NT \l_um_init_bool { \um_log:n {default-math-font} }
+  \um_fontspec_select_font:
+  \cs_if_exist:cF { sym \um_symfont_tl }
+    {
+      \DeclareSymbolFont{\um_symfont_tl}
+        {\encodingdefault}{\l_um_family_tl}{\mddefault}{\updefault}
+    }
+  \SetSymbolFont{\um_symfont_tl}{\l_um_mversion_tl}
+    {\encodingdefault}{\l_um_family_tl}{\mddefault}{\updefault}
+  \bool_if:nT {\l_um_ot_math_bool && !\g_um_mainfont_already_set_bool} {
+    \bool_set_true:N \g_um_mainfont_already_set_bool
+    \um_declare_math_sizes:
+    \um_setup_legacy_fam_two:
+    \um_setup_legacy_fam_three:
+  }
   \ignorespaces
 }
+
 
 \DeclareDocumentCommand \usemathfont { O{} m } {
   \mymacros_use_math_font:nn {#1}{#2}
@@ -358,7 +367,7 @@
   \keys_set:nV {unicode-math} \um_usemath_opts
   \tl_set:Nx \um_symfont_tl {#2}%
   \bool_if:NTF \l_um_init_bool {
-    \msg_trace:nnx {unicode-math} {default-math-font} {#2}
+    \um_log:n {default-math-font}
     \cs_set_eq:NN \_um_sym:nnn \um_process_symbol_noparse:nnn
     \cs_set_eq:NN \um_set_mathalphabet_char:Nnn             \um_mathmap_noparse:Nnn
     \cs_set_eq:NN \um_remap_symbol:nnn             \um_remap_symbol_noparse:nnn
@@ -378,6 +387,7 @@
   \um_setup_mathactives:
   \um_setup_delcodes:
   \um_setup_some_alphabets:n {#2}
+  \ignorespaces
 }
 
 \cs_generate_variant:Nn \mymacros_use_math_font:nn { Vn }
@@ -401,7 +411,7 @@
 
 \cs_new:Npn \um_setup_some_alphabets:n #1 {
   \seq_if_empty:NTF \l_um_mathalph_seq {
-    \um_trace:n {setup-implicit}
+    \um_log:n {setup-implicit}
     \keys_set:nv { mymacros_um } { l_um_style#1: }
     \seq_set_eq:NN \l_um_mathalph_seq \g_um_default_mathalph_seq
     \bool_set_true:N \l_um_implicit_alph_bool
@@ -410,7 +420,7 @@
     \um_maybe_init_alphabet:n  {bfsf}
   }
   {
-    \um_trace:n {setup-explicit}
+    \um_log:n {setup-explicit}
     \bool_set_false:N \l_um_implicit_alph_bool
     \cs_set_eq:NN \um_set_mathalphabet_char:Nnn \um_mathmap_noparse:Nnn
     \cs_set_eq:NN \um_map_char_single:nn \um_map_char_noparse:nn
@@ -430,8 +440,9 @@
     \um_setup_math_alphabet:VVV
       \l_um_tmpa_tl \l_um_tmpb_tl \l_um_remap_style_tl
   }
-  \um_warn_missing_alphabets:
+  \seq_if_empty:NF \l_um_missing_alph_seq { \um_log:n { missing-alphabets } }
 }
+
 
 
 \cs_new:Nn \um_input_some_math_symbols: {
@@ -508,11 +519,10 @@
 }
 
 \setmathfont{xits-math.otf}
-
 \colorlet{normal}{black}
-\setupmathfont{normal}
 
 \ifmy@typecastingcolour
+\setupmathfont{normal}
 \else
 \RenewDocumentCommand \setmathfont { o m } {}
 \RenewDocumentCommand \setupmathfont { o m } {}
