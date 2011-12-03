@@ -521,18 +521,7 @@
 \setmathfont{xits-math.otf}
 \colorlet{normal}{black}
 
-\ifmy@typecastingcolour
 \setupmathfont{normal}
-\else
-\RenewDocumentCommand \setmathfont { o m } {}
-\RenewDocumentCommand \setupmathfont { o m } {}
-\RenewDocumentCommand \usemathfont { o m } {}
-\RenewDocumentCommand \chartype { m m } {}
-\RenewDocumentCommand \numtype { m m } {}
-\RenewDocumentCommand \mactype { m m } {}
-\RenewDocumentCommand \pety { m m }{#2}
-\RenewDocumentCommand \newvariant { o m m }{}
-\fi
 \ExplSyntaxOff
 \fi
 
