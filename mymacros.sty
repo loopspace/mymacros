@@ -492,7 +492,6 @@
   \cs_set:cx {mymacros_um_char_#2_\tl_to_str:n {#3}:} {\char \int_use:N \g_mymacros_um_variant}
 }
 
-
 \tl_new:N \l_mymacros_um_range_tl
 \DeclareDocumentCommand \chartype { m m } {
   \clist_clear_new:N \l_mymacros_um_range_clist
@@ -919,10 +918,18 @@
     \setcounter{framenumber}{0}
     \global\def\inserttitle{{Lecture \insertlecturenumber: \insertlecture}}
     \global\def\insertshorttitle{{Lecture \insertlecturenumber: \insertlecture}}
-    \global\def\insertdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
-    \global\def\insertshortdate{\printdate{\csname beamer@currentlecturelabel\endcsname}}
+    \global\def\insertdate{\lecturedate}
+    \global\def\insertshortdate{\lecturedate}
   \titlepage
 }
+
+\newcommand\lecturedate{%
+    \ifx\beamer@currentlecturelabel\@empty
+    \else
+    \printdate{\beamer@currentlecturelabel}%
+    \fi
+}
+
 % Allow frames to not be in any lecture without disrupting flow
 \newcommand{\nolecture}{%
   \beamer@savemode
