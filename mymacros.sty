@@ -216,8 +216,8 @@
   \providecommand{\location}[2][\TeXhome/]%
     {\newcommand{\figdir}{#1#2/figures}}
 
-  \providecommand{\colour}[1]{\color{#1}}
-  \providecommand{\definecolour}[3]{\definecolor{#1}{#2}{#3}}
+%  \providecommand{\colour}[1]{\color{#1}}
+%  \providecommand{\definecolour}[3]{\definecolor{#1}{#2}{#3}}
 
   \providecommand{\my@fig}[2][]{%
       \myw@rning{Looking for \figdir/#2.pstex_t}
@@ -276,11 +276,10 @@
     \begin{frame}[plain]
     \LectureTitlePage
     \end{frame}
-    \lecturemode
+    \lecturemode}
   \newtheoremstyle{my@style@rmk}{3pt}{3pt}{\upshape}{}{\bfseries}{}{.5em}{}
   \newtheoremstyle{my@style@def}{3pt}{3pt}{\upshape}{}{\bfseries}{}{.5em}{}
   \newtheoremstyle{my@style@thm}{3pt}{3pt}{\upshape}{}{\bfseries}{}{.5em}{}
-  }
 
 }
 
@@ -531,8 +530,16 @@
 
 
 \@ifundefined{centre}{%
-\newenvironment{centre}{\center}{\endcenter}%
-\let\centring\centering
+  \newenvironment{centre}{\center}{\endcenter}%
+  \let\centring\centering
+  \let\centreline\centerline
+}{}
+
+\@ifpackageloaded{xcolor}{%
+  \let\colourlet=\colorlet
+  \let\definecolour=\definecolor
+  \let\colour=\color
+  \colourlet{grey}{gray}%
 }{}
 
 %
@@ -990,15 +997,15 @@
   
 % For after a list
 \newcommand{\itpause}{%
-\addtocounter{beamerpauses}{-1}
+\addtocounter{beamerpauses}{-1}%
 \pause
 }
 
 % For within a list
 \newcommand{\iitpause}{%
-\addtocounter{beamerpauses}{-1}
+\addtocounter{beamerpauses}{-1}%
 \pause
-\addtocounter{beamerpauses}{1}
+\addtocounter{beamerpauses}{1}%
 }
 
 %
